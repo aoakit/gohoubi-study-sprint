@@ -826,11 +826,16 @@
 
   <script>
     const pointPrizes = [
-      { label: "5pt", points: 5, weight: 44, color: "#dff5ff" },
-      { label: "10pt", points: 10, weight: 30, color: "#ccffd9" },
-      { label: "20pt", points: 20, weight: 16, color: "#ffefba" },
-      { label: "50pt", points: 50, weight: 7, color: "#ffd5dd" },
-      { label: "100pt", points: 100, weight: 3, color: "#e3d9ff" }
+      { type: "points", label: "5pt", points: 5, weight: 26, color: "#dff5ff" },
+      { type: "points", label: "10pt", points: 10, weight: 24, color: "#ccffd9" },
+      { type: "points", label: "20pt", points: 20, weight: 18, color: "#ffefba" },
+      { type: "points", label: "30pt", points: 30, weight: 12, color: "#ffe3b8" },
+      { type: "points", label: "50pt", points: 50, weight: 8, color: "#ffd5dd" },
+      { type: "points", label: "100pt", points: 100, weight: 5, color: "#e3d9ff" },
+      { type: "points", label: "150pt", points: 150, weight: 3, color: "#d6fff5" },
+      { type: "points", label: "200pt", points: 200, weight: 2, color: "#f8dcff" },
+      { type: "points", label: "300pt", points: 300, weight: 1, color: "#fff2a8" },
+      { type: "directReward", label: "景品直当たり", weight: 1, color: "#172033" }
     ];
 
     const defaultRewards = [
@@ -1379,8 +1384,18 @@
       state.tickets -= 1;
       state.stats.gacha += 1;
       const prize = rollPointPrize();
-      state.points += prize.points;
       addXp(8);
+      if (prize.type === "directReward") {
+        const reward = pickDirectReward();
+        state.redeemed[reward.id] = (state.redeemed[reward.id] || 0) + 1;
+        saveState();
+        els.gachaStage.innerHTML = `<div class="dex-item result-item" style="background:${prize.color};color:#fff"><strong>直当たり</strong><small>${reward.name}</small></div>`;
+        els.gachaText.textContent = `景品「${reward.name}」が直接当たり！ おうちの人に見せよう。`;
+        sparkle(40);
+        render();
+        return;
+      }
+      state.points += prize.points;
       saveState();
       els.gachaStage.innerHTML = `<div class="dex-item result-item" style="background:${prize.color}"><strong>${prize.label}</strong><small>ごほうびポイント</small></div>`;
       els.gachaText.textContent = `${prize.label}をゲット！ 合計 ${state.points}pt`;
@@ -1396,6 +1411,12 @@
         if (cursor <= 0) return prize;
       }
       return pointPrizes[0];
+    }
+
+    function pickDirectReward() {
+      const sorted = getRewards().sort((a, b) => a.cost - b.cost);
+      const candidates = sorted.filter(reward => reward.cost <= 800);
+      return pick(candidates.length ? candidates : sorted);
     }
 
     function resetGame() {
