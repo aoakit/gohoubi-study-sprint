@@ -692,6 +692,7 @@
         <div class="pill">★ <span id="levelText">Lv.1</span></div>
         <div class="pill">🍬 <span id="coinText">0</span></div>
         <div class="pill">🎟 <span id="ticketText">0</span></div>
+        <div class="pill">✅ <span id="passText">0/5</span></div>
         <div class="pill">💎 <span id="pointText">0pt</span></div>
         <div class="pill">🏆 <span id="bestText">0</span></div>
       </div>
@@ -713,11 +714,11 @@
                 <strong id="boardPointText">0pt</strong>
                 <p id="boardRewardText">次のごほうびまであと少し</p>
               </div>
-              <div class="study-card">
-                <span>今日の集中</span>
-                <strong id="todayText">0問</strong>
-                <p>短いタイムアタックを何度も回せます</p>
-              </div>
+            <div class="study-card">
+              <span>今日の集中</span>
+              <strong id="todayText">0問</strong>
+              <p id="passRuleText">1分で10問正解すると合格</p>
+            </div>
             </div>
             <div class="hud">
               <div class="meter"><span>のこり時間</span><strong id="timeText">60</strong><progress id="timeBar" max="60" value="60"></progress></div>
@@ -748,7 +749,7 @@
               <button id="skipBtn" class="secondary">パス</button>
             </div>
 
-            <div id="feedback" class="feedback">60秒で何問いけるかな？ 正解するとガチャ券もたまる。</div>
+            <div id="feedback" class="feedback">1分固定。10問正解で合格、合格をためるとガチャ券。</div>
           </div>
         </div>
 
@@ -789,7 +790,7 @@
           </details>
           <details>
             <summary>ガチャのルール</summary>
-            <p class="tiny">ガチャ券はかなりレア。ガチャでごほうびポイントが出て、ポイントはおうちの約束で交換する。</p>
+            <p class="tiny">1分チャレンジで合格をためるとガチャ券。5回、10回、20回、その後は20回ごとに1枚。</p>
           </details>
         </div>
       </aside>
@@ -908,17 +909,20 @@
     let particles = [];
     let recentQuestions = [];
     const mathTypes = ["add", "sub", "mul", "clock", "money", "missingAdd", "missingSub", "compare", "sequence", "double", "half", "length", "table", "threeAdd", "threeSub", "nearestTen", "placeValue", "calendar", "fraction", "division"];
+    const PASS_CORRECT = 10;
 
     const els = {
       levelText: document.querySelector("#levelText"),
       coinText: document.querySelector("#coinText"),
       ticketText: document.querySelector("#ticketText"),
+      passText: document.querySelector("#passText"),
       bestText: document.querySelector("#bestText"),
       pointText: document.querySelector("#pointText"),
       poolText: document.querySelector("#poolText"),
       boardPointText: document.querySelector("#boardPointText"),
       boardRewardText: document.querySelector("#boardRewardText"),
       todayText: document.querySelector("#todayText"),
+      passRuleText: document.querySelector("#passRuleText"),
       timeText: document.querySelector("#timeText"),
       timeBar: document.querySelector("#timeBar"),
       scoreText: document.querySelector("#scoreText"),
@@ -969,6 +973,8 @@
         level: 1,
         redeemed: {},
         customRewards: [],
+        passCount: 0,
+        nextTicketPassTarget: 5,
         daily: todayKey(),
         stats: { answered: 0, correct: 0, gacha: 0, combo10: 0 }
       };
@@ -978,7 +984,7 @@
       try {
         const saved = JSON.parse(localStorage.getItem("manaMonSprint"));
         if (!saved || saved.daily !== todayKey()) {
-          return normalizeState({ ...defaultState(), coins: saved?.coins || 0, tickets: saved?.tickets || 0, points: saved?.points || 0, best: saved?.best || 0, xp: saved?.xp || 0, level: saved?.level || 1, redeemed: saved?.redeemed || {}, customRewards: saved?.customRewards || [] });
+          return normalizeState({ ...defaultState(), coins: saved?.coins || 0, tickets: saved?.tickets || 0, points: saved?.points || 0, best: saved?.best || 0, xp: saved?.xp || 0, level: saved?.level || 1, redeemed: saved?.redeemed || {}, customRewards: saved?.customRewards || [], passCount: saved?.passCount || 0, nextTicketPassTarget: saved?.nextTicketPassTarget || 5 });
         }
         return normalizeState({ ...defaultState(), ...saved });
       } catch {
@@ -988,7 +994,7 @@
 
     function normalizeState(raw) {
       const base = defaultState();
-      return { ...base, ...raw, points: raw.points || 0, customRewards: Array.isArray(raw.customRewards) ? raw.customRewards : [], redeemed: { ...base.redeemed, ...(raw.redeemed || {}) }, stats: { ...base.stats, ...(raw.stats || {}) } };
+      return { ...base, ...raw, points: raw.points || 0, passCount: raw.passCount || 0, nextTicketPassTarget: raw.nextTicketPassTarget || 5, customRewards: Array.isArray(raw.customRewards) ? raw.customRewards : [], redeemed: { ...base.redeemed, ...(raw.redeemed || {}) }, stats: { ...base.stats, ...(raw.stats || {}) } };
     }
 
     function saveState() {
@@ -1011,10 +1017,12 @@
       els.levelText.textContent = `Lv.${state.level}`;
       els.coinText.textContent = state.coins;
       els.ticketText.textContent = state.tickets;
+      els.passText.textContent = `${state.passCount}/${state.nextTicketPassTarget}`;
       els.pointText.textContent = `${state.points}pt`;
       els.boardPointText.textContent = `${state.points}pt`;
       els.boardRewardText.textContent = nextRewardText();
       els.todayText.textContent = `${state.stats.answered}問`;
+      els.passRuleText.textContent = `1分で${PASS_CORRECT}問正解すると合格`;
       els.poolText.textContent = `${estimateQuestionSpace().toLocaleString()}+`;
       els.bestText.textContent = state.best;
       els.scoreText.textContent = score;
@@ -1044,7 +1052,7 @@
         { label: "10問こたえる", done: state.stats.answered >= 10, value: `${Math.min(10, state.stats.answered)}/10` },
         { label: "7問正解する", done: state.stats.correct >= 7, value: `${Math.min(7, state.stats.correct)}/7` },
         { label: "10コンボを出す", done: state.stats.combo10 >= 1, value: state.stats.combo10 ? "OK" : "まだ" },
-        { label: "ガチャを1回まわす", done: state.stats.gacha >= 1, value: `${Math.min(1, state.stats.gacha)}/1` }
+        { label: "次のガチャ券", done: state.passCount >= state.nextTicketPassTarget, value: `${state.passCount}/${state.nextTicketPassTarget}` }
       ];
       els.missions.innerHTML = missions.map(m => `<div class="mission ${m.done ? "done" : ""}"><span>${m.done ? "✓ " : ""}${m.label}</span><strong>${m.value}</strong></div>`).join("");
     }
@@ -1314,11 +1322,9 @@
 
     function milestoneBonus() {
       const reward = 6 + Math.floor(combo / 4);
-      const ticketBonus = Math.random() < .08 ? 1 : 0;
       state.coins += reward;
-      state.tickets += ticketBonus;
       addXp(6);
-      toast(`12問突破！ キャンディ+${reward}${ticketBonus ? " ガチャ券+1" : ""}`);
+      toast(`12問突破！ キャンディ+${reward}`);
       sparkle(30);
     }
 
@@ -1333,17 +1339,27 @@
     function finishGame() {
       clearInterval(timer);
       running = false;
-      const ticketGain = Math.floor(score / 280);
-      state.tickets += ticketGain;
+      const passed = correct >= PASS_CORRECT;
+      const ticketGain = passed ? registerPass() : 0;
       state.best = Math.max(state.best, score);
       addXp(Math.floor(score / 12));
-      toast(`終了！ ${correct}/${answered}問正解、ガチャ券+${ticketGain}`);
+      toast(passed ? `合格！ ${correct}問正解。${ticketGain ? "ガチャ券+1" : `あと${state.nextTicketPassTarget - state.passCount}合格でガチャ券`}` : `不合格。${PASS_CORRECT - correct}問たりない！`);
       els.qLabel.textContent = "結果";
-      els.question.textContent = `${score}点！`;
+      els.question.textContent = passed ? `合格 ${correct}問！` : `${correct}問 / ${PASS_CORRECT}問`;
       els.choices.innerHTML = "";
-      els.feedback.textContent = `正解 ${correct}問。もう1回でベスト更新できるかも。`;
+      els.feedback.textContent = ticketGain ? `ガチャ券を1枚ゲット。次は${state.nextTicketPassTarget}合格で次の1枚。` : `1分チャレンジは何度でも挑戦できます。`;
       saveState();
       render();
+    }
+
+    function registerPass() {
+      state.passCount += 1;
+      if (state.passCount < state.nextTicketPassTarget) return 0;
+      state.tickets += 1;
+      state.passCount = 0;
+      if (state.nextTicketPassTarget === 5) state.nextTicketPassTarget = 10;
+      else state.nextTicketPassTarget = 20;
+      return 1;
     }
 
     function addXp(amount) {
@@ -1351,12 +1367,7 @@
       while (state.xp >= 100) {
         state.xp -= 100;
         state.level += 1;
-        if (state.level % 5 === 0) {
-          state.tickets += 1;
-          toast(`レベルアップ！ Lv.${state.level} ガチャ券+1`);
-        } else {
-          toast(`レベルアップ！ Lv.${state.level}`);
-        }
+        toast(`レベルアップ！ Lv.${state.level}`);
       }
     }
 
