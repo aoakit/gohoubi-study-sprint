@@ -44,6 +44,8 @@
       cursor: pointer;
       color: var(--ink);
       transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     button:active { transform: translateY(2px) scale(.98); }
@@ -663,18 +665,268 @@
     }
 
     @media (max-width: 640px) {
-      .shell { width: min(100vw - 18px, 1180px); padding-top: 10px; }
-      .brand { align-items: flex-start; }
-      .logo { width: 50px; height: 50px; border-radius: 14px; }
-      .battle-row { grid-template-columns: 1fr; align-items: center; }
-      .study-board { grid-template-columns: 1fr; }
-      .trainer-body { display: none; }
+      body {
+        background: linear-gradient(180deg, #e8f8ff 0%, #fffdf7 55%, #f4f9ef 100%);
+      }
+
+      .shell {
+        width: 100%;
+        padding: 8px 8px calc(18px + env(safe-area-inset-bottom));
+      }
+
+      header {
+        min-height: auto;
+        gap: 8px;
+      }
+
+      .brand {
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+      }
+
+      .logo::before {
+        width: 24px;
+        height: 22px;
+      }
+
+      h1 {
+        font-size: 1.35rem;
+      }
+
+      .tagline {
+        display: none;
+      }
+
+      .top-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .pill {
+        min-height: 34px;
+        padding: 6px 8px;
+        justify-content: center;
+        font-size: .88rem;
+        box-shadow: none;
+      }
+
+      .grid {
+        gap: 8px;
+      }
+
+      .stage, .panel, .toolbar {
+        box-shadow: 0 8px 20px rgba(31, 48, 82, .12);
+      }
+
+      .world {
+        min-height: auto;
+        padding: 10px;
+      }
+
+      canvas {
+        display: none;
+      }
+
+      .study-board {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        min-height: auto;
+        gap: 6px;
+      }
+
+      .study-card {
+        min-height: 82px;
+        padding: 8px;
+        border-width: 2px;
+        box-shadow: none;
+        align-content: start;
+      }
+
+      .study-card span {
+        font-size: .68rem;
+      }
+
+      .study-card strong {
+        font-size: 1.2rem;
+      }
+
+      .study-card p {
+        display: none;
+      }
+
+      .hud {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .meter {
+        min-height: 52px;
+        padding: 7px 6px;
+      }
+
+      .meter span {
+        font-size: .64rem;
+      }
+
+      .meter strong {
+        font-size: 1.05rem;
+      }
+
+      progress {
+        height: 7px;
+      }
+
+      .quiz {
+        padding: 10px;
+        gap: 10px;
+      }
+
       .mode-tabs, .toolbar { grid-template-columns: repeat(2, 1fr); }
-      .choices { grid-template-columns: 1fr; }
-      .answer-row { grid-template-columns: 1fr; }
-      .question-card { min-height: 142px; }
-      .hud { grid-template-columns: 1fr 1fr; }
-      .top-stats .pill { flex: 1 1 130px; justify-content: center; }
+
+      .tab {
+        min-height: 42px;
+      }
+
+      .question-card {
+        min-height: 132px;
+        padding: 14px;
+        border-width: 2px;
+        box-shadow: none;
+      }
+
+      .question-card::after {
+        width: 86px;
+        height: 86px;
+      }
+
+      .q-label {
+        font-size: .82rem;
+      }
+
+      .question {
+        font-size: clamp(1.65rem, 10vw, 3rem);
+      }
+
+      .choices {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .choice {
+        min-height: 58px;
+        font-size: 1.25rem;
+        border-width: 2px;
+        box-shadow: 0 4px 0 rgba(23, 32, 51, .13);
+      }
+
+      .answer-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      #typedAnswer {
+        grid-column: 1 / -1;
+        min-height: 50px;
+        font-size: 1.2rem;
+        border-width: 2px;
+      }
+
+      .primary, .secondary, .danger {
+        min-height: 50px;
+        padding: 9px 10px;
+        border-width: 2px;
+        box-shadow: 0 4px 0 rgba(23, 32, 51, .13);
+      }
+
+      .feedback {
+        min-height: 28px;
+        font-size: .9rem;
+      }
+
+      .toolbar {
+        position: sticky;
+        bottom: 0;
+        z-index: 4;
+        margin-top: 8px;
+        padding: 8px;
+        border-radius: 8px 8px 0 0;
+        backdrop-filter: blur(14px);
+      }
+
+      .tool {
+        min-height: 52px;
+      }
+
+      aside {
+        gap: 8px;
+      }
+
+      .panel {
+        padding: 10px;
+      }
+
+      .panel h2 {
+        font-size: .98rem;
+      }
+
+      .point-summary {
+        padding: 10px;
+      }
+
+      .missions {
+        gap: 6px;
+      }
+
+      .mission {
+        padding: 8px;
+        font-size: .9rem;
+      }
+
+      .dex {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .dex-item {
+        aspect-ratio: auto;
+        min-height: 76px;
+        padding: 8px;
+      }
+
+      .reward-editor {
+        grid-template-columns: 1fr;
+      }
+
+      dialog {
+        width: calc(100vw - 16px);
+        max-height: calc(100dvh - 24px);
+        overflow: auto;
+        border-width: 3px;
+      }
+
+      .modal-body {
+        padding: 12px;
+      }
+
+      .gacha-stage {
+        height: 190px;
+      }
+
+      .capsule {
+        width: 108px;
+        height: 108px;
+      }
+
+      .toast {
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        width: calc(100vw - 24px);
+        border-radius: 8px;
+      }
     }
   </style>
 </head>
