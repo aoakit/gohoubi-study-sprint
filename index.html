@@ -812,6 +812,23 @@
       gap: 8px;
     }
 
+    .reward-editor {
+      display: grid;
+      grid-template-columns: 1fr 90px auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .reward-editor input {
+      min-height: 44px;
+      border: 3px solid #172033;
+      border-radius: 8px;
+      padding: 0 10px;
+      background: #fff;
+      font-weight: 900;
+      min-width: 0;
+    }
+
     .dex-item {
       aspect-ratio: 1;
       border-radius: 8px;
@@ -1128,6 +1145,11 @@
   <dialog id="dexDialog">
     <div class="modal-body">
       <h2>ごほうび交換所</h2>
+      <div class="reward-editor">
+        <input id="rewardNameInput" type="text" maxlength="24" placeholder="景品名">
+        <input id="rewardCostInput" type="number" min="1" step="10" placeholder="pt">
+        <button id="addRewardBtn" class="primary">追加</button>
+      </div>
       <div id="dexFull" class="dex"></div>
       <button id="closeDexBtn" class="secondary">とじる</button>
     </div>
@@ -1144,7 +1166,7 @@
       { label: "100pt", points: 100, weight: 3, color: "#e3d9ff" }
     ];
 
-    const rewards = [
+    const defaultRewards = [
       { id: "yen100", name: "100円", cost: 100, note: "小さなおこづかい" },
       { id: "book", name: "好きな本1冊", cost: 500, note: "本屋さんで選ぶ" },
       { id: "movie", name: "映画・動画タイム", cost: 800, note: "家族で決める特別時間" },
@@ -1166,7 +1188,19 @@
       ["読む", "よむ"], ["書く", "かく"], ["走る", "はしる"], ["食べる", "たべる"], ["見る", "みる"],
       ["聞く", "きく"], ["話す", "はなす"], ["朝", "あさ"], ["昼", "ひる"], ["夜", "よる"],
       ["春", "はる"], ["夏", "なつ"], ["秋", "あき"], ["冬", "ふゆ"], ["兄", "あに"],
-      ["姉", "あね"], ["弟", "おとうと"], ["妹", "いもうと"], ["公園", "こうえん"], ["学校", "がっこう"]
+      ["姉", "あね"], ["弟", "おとうと"], ["妹", "いもうと"], ["公園", "こうえん"], ["学校", "がっこう"],
+      ["元気", "げんき"], ["天気", "てんき"], ["電気", "でんき"], ["時間", "じかん"], ["分", "ふん"],
+      ["半分", "はんぶん"], ["毎日", "まいにち"], ["今年", "ことし"], ["来年", "らいねん"], ["去年", "きょねん"],
+      ["国語", "こくご"], ["算数", "さんすう"], ["図工", "ずこう"], ["生活", "せいかつ"], ["先生", "せんせい"],
+      ["友だち", "ともだち"], ["家", "いえ"], ["外", "そと"], ["内", "うち"], ["東", "ひがし"],
+      ["西", "にし"], ["南", "みなみ"], ["北", "きた"], ["長い", "ながい"], ["短い", "みじかい"],
+      ["強い", "つよい"], ["弱い", "よわい"], ["太い", "ふとい"], ["細い", "ほそい"], ["明るい", "あかるい"],
+      ["暗い", "くらい"], ["近い", "ちかい"], ["遠い", "とおい"], ["多い", "おおい"], ["少ない", "すくない"],
+      ["新しい", "あたらしい"], ["古い", "ふるい"], ["楽しい", "たのしい"], ["正しい", "ただしい"], ["丸い", "まるい"],
+      ["色", "いろ"], ["形", "かたち"], ["点", "てん"], ["線", "せん"], ["絵", "え"],
+      ["紙", "かみ"], ["組", "くみ"], ["番", "ばん"], ["肉", "にく"], ["魚", "さかな"],
+      ["米", "こめ"], ["麦", "むぎ"], ["牛", "うし"], ["馬", "うま"], ["鳥", "とり"],
+      ["羽", "はね"], ["声", "こえ"], ["歌", "うた"], ["音", "おと"], ["心", "こころ"]
     ];
 
     const wordBank = [
@@ -1177,7 +1211,31 @@
       { q: "「青い空」の「青い」は何を表す？", a: "色", choices: ["色", "数", "場所", "時間"] },
       { q: "「一日」は何と読む？", a: "いちにち", choices: ["いちにち", "ひとつき", "ついたち", "いちねん"] },
       { q: "「友だち」と近い言葉は？", a: "なかま", choices: ["なかま", "にもつ", "やさい", "けしき"] },
-      { q: "「きれいな花」で名詞は？", a: "花", choices: ["花", "きれい", "な", "で"] }
+      { q: "「きれいな花」で名詞は？", a: "花", choices: ["花", "きれい", "な", "で"] },
+      { q: "「寒い」の反対は？", a: "暑い", choices: ["暑い", "重い", "近い", "弱い"] },
+      { q: "「長い」の反対は？", a: "短い", choices: ["短い", "広い", "丸い", "多い"] },
+      { q: "「強い」の反対は？", a: "弱い", choices: ["弱い", "細い", "古い", "暗い"] },
+      { q: "「上」の反対は？", a: "下", choices: ["下", "右", "外", "前"] },
+      { q: "「右」の反対は？", a: "左", choices: ["左", "前", "中", "北"] },
+      { q: "「前」の反対は？", a: "後ろ", choices: ["後ろ", "横", "東", "内"] },
+      { q: "「多い」の反対は？", a: "少ない", choices: ["少ない", "早い", "太い", "新しい"] },
+      { q: "「新しい」の反対は？", a: "古い", choices: ["古い", "暗い", "遠い", "細い"] },
+      { q: "「明るい」の反対は？", a: "暗い", choices: ["暗い", "弱い", "短い", "寒い"] },
+      { q: "「おいしい」を使うものは？", a: "食べもの", choices: ["食べもの", "時間", "場所", "数"] },
+      { q: "「さらさら」は何のようす？", a: "手ざわり", choices: ["手ざわり", "数", "方角", "名前"] },
+      { q: "「わくわく」はどんな気持ち？", a: "楽しみ", choices: ["楽しみ", "ねむい", "くらい", "重い"] },
+      { q: "「雨がふる」の主語は？", a: "雨", choices: ["雨", "ふる", "が", "る"] },
+      { q: "「犬が走る」の述語は？", a: "走る", choices: ["走る", "犬", "が", "犬が"] },
+      { q: "「赤いりんご」で色を表す言葉は？", a: "赤い", choices: ["赤い", "りんご", "い", "ご"] },
+      { q: "「三本のえんぴつ」で数を表す言葉は？", a: "三本", choices: ["三本", "えんぴつ", "の", "本"] },
+      { q: "「ぼくは学校へ行く」で場所は？", a: "学校", choices: ["学校", "ぼく", "行く", "へ"] },
+      { q: "「。」の名前は？", a: "句点", choices: ["句点", "読点", "かぎ", "中点"] },
+      { q: "「、」の名前は？", a: "読点", choices: ["読点", "句点", "丸", "線"] },
+      { q: "「うさぎ」を数える言い方は？", a: "一羽", choices: ["一羽", "一本", "一台", "一枚"] },
+      { q: "「車」を数える言い方は？", a: "一台", choices: ["一台", "一羽", "一枚", "一足"] },
+      { q: "「紙」を数える言い方は？", a: "一枚", choices: ["一枚", "一台", "一匹", "一人"] },
+      { q: "「くつ」を数える言い方は？", a: "一足", choices: ["一足", "一枚", "一本", "一台"] },
+      { q: "「魚」を数える言い方は？", a: "一匹", choices: ["一匹", "一足", "一台", "一枚"] }
     ];
 
     const state = loadState();
@@ -1193,6 +1251,7 @@
     let correct = 0;
     let particles = [];
     let currentManaMon = manaMons[0];
+    let recentQuestions = [];
 
     const els = {
       levelText: document.querySelector("#levelText"),
@@ -1235,6 +1294,9 @@
       closeGachaBtn: document.querySelector("#closeGachaBtn"),
       dexDialog: document.querySelector("#dexDialog"),
       dexFull: document.querySelector("#dexFull"),
+      rewardNameInput: document.querySelector("#rewardNameInput"),
+      rewardCostInput: document.querySelector("#rewardCostInput"),
+      addRewardBtn: document.querySelector("#addRewardBtn"),
       closeDexBtn: document.querySelector("#closeDexBtn"),
       toast: document.querySelector("#toast"),
       canvas: document.querySelector("#fxCanvas")
@@ -1251,6 +1313,7 @@
         xp: 0,
         level: 1,
         redeemed: {},
+        customRewards: [],
         daily: todayKey(),
         stats: { answered: 0, correct: 0, gacha: 0, combo10: 0 }
       };
@@ -1260,7 +1323,7 @@
       try {
         const saved = JSON.parse(localStorage.getItem("manaMonSprint"));
         if (!saved || saved.daily !== todayKey()) {
-          return normalizeState({ ...defaultState(), coins: saved?.coins || 0, tickets: saved?.tickets || 0, points: saved?.points || 0, best: saved?.best || 0, xp: saved?.xp || 0, level: saved?.level || 1, redeemed: saved?.redeemed || {} });
+          return normalizeState({ ...defaultState(), coins: saved?.coins || 0, tickets: saved?.tickets || 0, points: saved?.points || 0, best: saved?.best || 0, xp: saved?.xp || 0, level: saved?.level || 1, redeemed: saved?.redeemed || {}, customRewards: saved?.customRewards || [] });
         }
         return normalizeState({ ...defaultState(), ...saved });
       } catch {
@@ -1270,7 +1333,7 @@
 
     function normalizeState(raw) {
       const base = defaultState();
-      return { ...base, ...raw, points: raw.points || 0, redeemed: { ...base.redeemed, ...(raw.redeemed || {}) }, stats: { ...base.stats, ...(raw.stats || {}) } };
+      return { ...base, ...raw, points: raw.points || 0, customRewards: Array.isArray(raw.customRewards) ? raw.customRewards : [], redeemed: { ...base.redeemed, ...(raw.redeemed || {}) }, stats: { ...base.stats, ...(raw.stats || {}) } };
     }
 
     function saveState() {
@@ -1357,7 +1420,7 @@
     }
 
     function renderDexPreview() {
-      els.dexPreview.innerHTML = rewards.slice(0, 3).map(rewardTile).join("");
+      els.dexPreview.innerHTML = getRewards().slice(0, 3).map(rewardTile).join("");
     }
 
     function rewardTile(reward) {
@@ -1366,13 +1429,13 @@
     }
 
     function nextRewardText() {
-      const next = rewards.find(reward => reward.cost > state.points);
+      const next = getRewards().find(reward => reward.cost > state.points);
       if (!next) return "すべてのごほうびに届いています";
       return `${next.name}まであと${next.cost - state.points}pt`;
     }
 
     function renderFullDex() {
-      els.dexFull.innerHTML = rewards.map(rewardTile).join("");
+      els.dexFull.innerHTML = getRewards().map(rewardTile).join("");
       els.dexFull.querySelectorAll("[data-reward]").forEach(btn => {
         btn.addEventListener("click", () => {
           redeemReward(btn.dataset.reward);
@@ -1383,7 +1446,7 @@
     }
 
     function redeemReward(id) {
-      const reward = rewards.find(item => item.id === id);
+      const reward = getRewards().find(item => item.id === id);
       if (!reward) return;
       if (state.points < reward.cost) {
         toast(`${reward.name}まであと${reward.cost - state.points}pt`);
@@ -1395,25 +1458,54 @@
       toast(`${reward.name}を交換済みにしたよ。おうちの人に見せよう！`);
     }
 
+    function getRewards() {
+      return [...defaultRewards, ...state.customRewards].sort((a, b) => a.cost - b.cost);
+    }
+
+    function addCustomReward() {
+      const name = els.rewardNameInput.value.trim();
+      const cost = Number(els.rewardCostInput.value);
+      if (!name || !Number.isFinite(cost) || cost < 1) {
+        toast("景品名と必要ポイントを入れてね");
+        return;
+      }
+      const reward = { id: `custom_${Date.now()}`, name, cost: Math.floor(cost), note: "おうちで決めたごほうび" };
+      state.customRewards.push(reward);
+      els.rewardNameInput.value = "";
+      els.rewardCostInput.value = "";
+      saveState();
+      renderFullDex();
+      render();
+      toast(`${name}を交換所に追加したよ`);
+    }
+
     function makeQuestion() {
       const mode = activeMode === "mix" ? pick(["math", "kanji", "word"]) : activeMode;
-      if (mode === "math") return makeMath();
-      if (mode === "kanji") return makeKanji();
-      return makeWord();
+      let q;
+      for (let i = 0; i < 20; i++) {
+        q = mode === "math" ? makeMath() : mode === "kanji" ? makeKanji() : makeWord();
+        const key = `${q.label}:${q.q}:${q.answer}`;
+        if (!recentQuestions.includes(key)) {
+          recentQuestions.push(key);
+          recentQuestions = recentQuestions.slice(-45);
+          return q;
+        }
+      }
+      return q;
     }
 
     function makeMath() {
-      const type = pick(["add", "sub", "mul", "clock", "money"]);
+      const type = pick(["add", "sub", "mul", "clock", "money", "missingAdd", "missingSub", "compare", "sequence", "double", "half", "length", "table"]);
       if (type === "add") {
-        const a = rand(8, 78), b = rand(4, 49);
+        const a = rand(6, 89), b = rand(4, 69);
         return choiceQuestion("けいさん", `${a} + ${b} = ?`, String(a + b), numberChoices(a + b));
       }
       if (type === "sub") {
-        const a = rand(20, 99), b = rand(3, Math.min(49, a - 1));
+        const a = rand(20, 130), b = rand(3, Math.min(80, a - 1));
         return choiceQuestion("けいさん", `${a} - ${b} = ?`, String(a - b), numberChoices(a - b));
       }
       if (type === "mul") {
-        const a = rand(2, 9), b = rand(2, 5);
+        const a = rand(2, 9), b = rand(2, 9);
         return choiceQuestion("九九チャレンジ", `${a} × ${b} = ?`, String(a * b), numberChoices(a * b));
       }
       if (type === "clock") {
@@ -1423,7 +1515,38 @@
       const coins = [10, 50, 100];
       const a = pick(coins), b = pick(coins), c = pick([0, 10, 50]);
       const sum = a + b + c;
-      return choiceQuestion("お金", `${a}円 + ${b}円${c ? ` + ${c}円` : ""}`, `${sum}円`, shuffle([`${sum}円`, `${sum + 10}円`, `${Math.max(10, sum - 10)}円`, `${sum + 50}円`]));
+      if (type === "money") return choiceQuestion("お金", `${a}円 + ${b}円${c ? ` + ${c}円` : ""}`, `${sum}円`, shuffle([`${sum}円`, `${sum + 10}円`, `${Math.max(10, sum - 10)}円`, `${sum + 50}円`]));
+      if (type === "missingAdd") {
+        const x = rand(3, 49), y = rand(4, 49), total = x + y;
+        return choiceQuestion("虫食い算", `${x} + □ = ${total}`, String(y), numberChoices(y));
+      }
+      if (type === "missingSub") {
+        const x = rand(20, 99), y = rand(3, 49), ans = x - y;
+        return choiceQuestion("虫食い算", `${x} - □ = ${ans}`, String(y), numberChoices(y));
+      }
+      if (type === "compare") {
+        const x = rand(10, 99), y = rand(10, 99);
+        const ans = x > y ? ">" : x < y ? "<" : "=";
+        return choiceQuestion("大きさくらべ", `${x} □ ${y}`, ans, [">", "<", "=", "+"]);
+      }
+      if (type === "sequence") {
+        const start = rand(1, 40), step = pick([2, 3, 5, 10]), ans = start + step * 3;
+        return choiceQuestion("数のならび", `${start}, ${start + step}, ${start + step * 2}, □`, String(ans), numberChoices(ans));
+      }
+      if (type === "double") {
+        const x = rand(2, 50);
+        return choiceQuestion("倍", `${x}の2倍は？`, String(x * 2), numberChoices(x * 2));
+      }
+      if (type === "half") {
+        const x = rand(2, 50) * 2;
+        return choiceQuestion("半分", `${x}の半分は？`, String(x / 2), numberChoices(x / 2));
+      }
+      if (type === "length") {
+        const cm = rand(1, 8), mm = rand(1, 9), ans = cm * 10 + mm;
+        return choiceQuestion("長さ", `${cm}cm${mm}mmは何mm？`, `${ans}mm`, shuffle([`${ans}mm`, `${ans + 10}mm`, `${Math.max(1, ans - 5)}mm`, `${cm + mm}mm`]));
+      }
+      const legs = rand(2, 6), chairs = rand(2, 9), ans = legs * chairs;
+      return choiceQuestion("まとまり", `${legs}本足のいすが${chairs}こ。足は全部で？`, String(ans), numberChoices(ans));
     }
 
     function makeKanji() {
@@ -1699,6 +1822,10 @@
       els.gachaDialog.showModal();
     });
     els.rollBtn.addEventListener("click", rollGacha);
+    els.addRewardBtn.addEventListener("click", addCustomReward);
+    els.rewardCostInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") addCustomReward();
+    });
     els.closeGachaBtn.addEventListener("click", () => els.gachaDialog.close());
     els.dexBtn.addEventListener("click", () => {
       renderFullDex();
