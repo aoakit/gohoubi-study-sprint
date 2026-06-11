@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ja">
 <head>
   <meta charset="utf-8">
@@ -240,8 +240,8 @@
     }
 
     .avatar {
-      width: 178px;
-      height: 190px;
+      width: 210px;
+      height: 214px;
       position: relative;
       display: grid;
       place-items: center;
@@ -319,28 +319,34 @@
     .ear.left { left: 17px; transform: rotate(-28deg); }
     .ear.right { right: 17px; transform: rotate(28deg) scaleX(-1); }
 
-    .avatar-body {
-      width: 102px;
-      height: 110px;
+    .avatar-part {
       position: absolute;
-      left: 38px;
-      top: 64px;
+      pointer-events: none;
+    }
+
+    .avatar-body {
+      width: 94px;
+      height: 84px;
+      left: 58px;
+      top: 76px;
       border: 5px solid #172033;
-      border-radius: 34px 34px 22px 22px;
-      background: var(--suit, #3e9bdc);
+      border-radius: var(--bodyRadius, 30px 30px 20px 20px);
+      background: var(--body, #3e9bdc);
+      clip-path: var(--bodyClip, none);
       box-shadow: inset 0 -16px rgba(0, 0, 0, .13), inset 12px 10px rgba(255, 255, 255, .2);
+      z-index: 3;
     }
 
     .avatar-head {
       width: 82px;
       height: 76px;
-      position: absolute;
-      left: 48px;
-      top: 18px;
+      left: 64px;
+      top: 16px;
       border: 5px solid #172033;
       border-radius: 50% 50% 44% 44%;
       background: #ffd9a8;
       box-shadow: inset 0 -15px rgba(0, 0, 0, .13), inset 12px 10px rgba(255, 255, 255, .24);
+      z-index: 6;
     }
 
     .avatar-head::before,
@@ -368,56 +374,154 @@
       border-radius: 0 0 30px 30px;
     }
 
-    .equip-hat, .equip-aura, .equip-accessory {
-      position: absolute;
-      pointer-events: none;
-    }
-
-    .equip-hat {
-      width: 104px;
-      height: 38px;
-      left: 37px;
-      top: 0;
+    .equip-head {
+      width: var(--headW, 104px);
+      height: var(--headH, 38px);
+      left: var(--headL, 53px);
+      top: var(--headT, 0);
       border: 5px solid #172033;
-      border-radius: 34px 34px 12px 12px;
-      background: var(--hat, #ffcf4b);
+      border-radius: var(--headRadius, 34px 34px 12px 12px);
+      background: var(--head, #ffcf4b);
+      clip-path: var(--headClip, none);
       box-shadow: inset 0 -8px rgba(0, 0, 0, .12);
-      z-index: 2;
+      z-index: 8;
     }
 
-    .equip-hat::after {
-      content: "";
+    .equip-head::after {
+      content: var(--headAfter, "");
       position: absolute;
-      left: 18px;
-      right: 18px;
-      bottom: -17px;
-      height: 16px;
+      left: var(--headAfterL, 20px);
+      right: var(--headAfterR, 20px);
+      bottom: var(--headAfterB, -16px);
+      height: var(--headAfterH, 14px);
       border: 5px solid #172033;
       border-top: 0;
       border-radius: 0 0 20px 20px;
       background: inherit;
     }
 
-    .equip-accessory {
-      width: 48px;
-      height: 24px;
-      left: 65px;
-      top: 52px;
-      border: 4px solid #172033;
-      border-radius: 999px;
-      background: var(--acc, #fff);
-      z-index: 3;
-      opacity: var(--accOpacity, 1);
+    .avatar-arms {
+      inset: 0;
+      z-index: 2;
     }
 
-    .equip-aura {
-      inset: 2px;
-      border-radius: 50%;
-      border: 8px solid var(--aura, rgba(255, 207, 75, .45));
-      opacity: var(--auraOpacity, .65);
-      transform: rotate(12deg);
-      z-index: -1;
+    .avatar-arms::before,
+    .avatar-arms::after {
+      content: "";
+      position: absolute;
+      top: var(--armT, 88px);
+      width: var(--armW, 30px);
+      height: var(--armH, 68px);
+      border: 5px solid #172033;
+      border-radius: var(--armRadius, 22px);
+      background: var(--arms, #47b475);
+      box-shadow: inset 0 -10px rgba(0, 0, 0, .12);
     }
+
+    .avatar-arms::before {
+      left: var(--armL, 31px);
+      transform: rotate(var(--armRotL, 22deg));
+      clip-path: var(--armClip, none);
+    }
+
+    .avatar-arms::after {
+      right: var(--armR, 31px);
+      transform: rotate(var(--armRotR, -22deg));
+      clip-path: var(--armClip, none);
+    }
+
+    .avatar-lower {
+      width: 86px;
+      height: 48px;
+      left: 62px;
+      top: 148px;
+      border: 5px solid #172033;
+      border-radius: var(--lowerRadius, 18px 18px 24px 24px);
+      background: var(--lower, #7759d8);
+      clip-path: var(--lowerClip, none);
+      box-shadow: inset 0 -10px rgba(0, 0, 0, .12);
+      z-index: 2;
+    }
+
+    .avatar-feet {
+      inset: 0;
+      z-index: 4;
+    }
+
+    .avatar-feet::before,
+    .avatar-feet::after {
+      content: "";
+      position: absolute;
+      top: var(--footT, 184px);
+      width: var(--footW, 42px);
+      height: var(--footH, 24px);
+      border: 5px solid #172033;
+      border-radius: var(--footRadius, 18px 18px 10px 10px);
+      background: var(--feet, #ef5b75);
+      box-shadow: inset 0 -7px rgba(0, 0, 0, .12);
+      clip-path: var(--footClip, none);
+    }
+
+    .avatar-feet::before { left: 58px; transform: rotate(var(--footRotL, -5deg)); }
+    .avatar-feet::after { right: 58px; transform: rotate(var(--footRotR, 5deg)); }
+
+    .avatar-pet {
+      width: var(--petW, 46px);
+      height: var(--petH, 42px);
+      left: var(--petL, 154px);
+      top: var(--petT, 142px);
+      border: 4px solid #172033;
+      border-radius: var(--petRadius, 50% 50% 38% 42%);
+      background: var(--pet, #ffcf4b);
+      clip-path: var(--petClip, none);
+      box-shadow: inset 0 -8px rgba(0, 0, 0, .12), 0 8px 0 rgba(23, 32, 51, .1);
+      z-index: 5;
+      animation: petHop 1.4s ease-in-out infinite;
+    }
+
+    .avatar-pet::before,
+    .avatar-pet::after {
+      content: "";
+      position: absolute;
+      top: 17px;
+      width: 6px;
+      height: 8px;
+      border-radius: 50%;
+      background: #172033;
+    }
+
+    .avatar-pet::before { left: 13px; }
+    .avatar-pet::after { right: 13px; }
+
+    :is(.avatar, .mini-avatar)[data-head-shape="1"] { --headW: 92px; --headH: 52px; --headL: 59px; --headT: -5px; --headRadius: 50% 50% 18px 18px; --headAfter: none; }
+    :is(.avatar, .mini-avatar)[data-head-shape="2"] { --headW: 112px; --headH: 34px; --headL: 49px; --headT: 8px; --headRadius: 8px; --headAfterL: 42px; --headAfterR: 42px; --headAfterB: 20px; --headAfterH: 42px; }
+    :is(.avatar, .mini-avatar)[data-head-shape="3"] { --headW: 110px; --headH: 48px; --headL: 50px; --headT: -2px; --headRadius: 12px 12px 30px 30px; --headClip: polygon(0 34%, 50% 0, 100% 34%, 88% 100%, 12% 100%); --headAfter: none; }
+    :is(.avatar, .mini-avatar)[data-head-shape="4"] { --headW: 114px; --headH: 30px; --headL: 48px; --headT: 6px; --headRadius: 999px; --headAfter: none; }
+
+    :is(.avatar, .mini-avatar)[data-body-shape="1"] { --bodyRadius: 12px; --bodyClip: polygon(8% 0, 92% 0, 100% 88%, 50% 100%, 0 88%); }
+    :is(.avatar, .mini-avatar)[data-body-shape="2"] { --bodyRadius: 42px 42px 16px 16px; --bodyClip: none; }
+    :is(.avatar, .mini-avatar)[data-body-shape="3"] { --bodyRadius: 18px; --bodyClip: polygon(18% 0, 82% 0, 100% 100%, 0 100%); }
+    :is(.avatar, .mini-avatar)[data-body-shape="4"] { --bodyRadius: 34px 14px 34px 14px; --bodyClip: none; }
+
+    :is(.avatar, .mini-avatar)[data-arms-shape="1"] { --armW: 24px; --armH: 78px; --armRadius: 12px; --armRotL: 44deg; --armRotR: -44deg; }
+    :is(.avatar, .mini-avatar)[data-arms-shape="2"] { --armW: 36px; --armH: 56px; --armRadius: 8px 20px 20px 8px; --armClip: polygon(0 0, 100% 10%, 85% 100%, 10% 90%); }
+    :is(.avatar, .mini-avatar)[data-arms-shape="3"] { --armW: 28px; --armH: 62px; --armRadius: 999px; --armT: 80px; --armRotL: -18deg; --armRotR: 18deg; }
+    :is(.avatar, .mini-avatar)[data-arms-shape="4"] { --armW: 38px; --armH: 38px; --armRadius: 50%; --armT: 100px; --armL: 27px; --armR: 27px; }
+
+    :is(.avatar, .mini-avatar)[data-lower-shape="1"] { --lowerRadius: 8px; --lowerClip: polygon(0 0, 100% 0, 88% 100%, 12% 100%); }
+    :is(.avatar, .mini-avatar)[data-lower-shape="2"] { --lowerRadius: 50% 50% 18px 18px; }
+    :is(.avatar, .mini-avatar)[data-lower-shape="3"] { --lowerRadius: 12px 12px 4px 4px; --lowerClip: polygon(0 0, 100% 0, 72% 100%, 28% 100%); }
+    :is(.avatar, .mini-avatar)[data-lower-shape="4"] { --lowerRadius: 26px; --lowerClip: polygon(50% 0, 100% 32%, 82% 100%, 18% 100%, 0 32%); }
+
+    :is(.avatar, .mini-avatar)[data-feet-shape="1"] { --footW: 34px; --footH: 32px; --footRadius: 10px; --footRotL: -14deg; --footRotR: 14deg; }
+    :is(.avatar, .mini-avatar)[data-feet-shape="2"] { --footW: 48px; --footH: 18px; --footRadius: 999px; --footT: 190px; }
+    :is(.avatar, .mini-avatar)[data-feet-shape="3"] { --footW: 36px; --footH: 28px; --footRadius: 50% 50% 12px 12px; --footClip: polygon(50% 0, 100% 100%, 0 100%); }
+    :is(.avatar, .mini-avatar)[data-feet-shape="4"] { --footW: 46px; --footH: 28px; --footRadius: 8px 22px 12px 12px; --footRotL: 3deg; --footRotR: -3deg; }
+
+    :is(.avatar, .mini-avatar)[data-pet-shape="1"] { --petW: 40px; --petH: 54px; --petRadius: 50% 50% 38% 38%; --petT: 132px; }
+    :is(.avatar, .mini-avatar)[data-pet-shape="2"] { --petW: 56px; --petH: 36px; --petRadius: 20px 28px 18px 18px; --petL: 150px; --petT: 150px; }
+    :is(.avatar, .mini-avatar)[data-pet-shape="3"] { --petW: 48px; --petH: 48px; --petRadius: 12px; --petClip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+    :is(.avatar, .mini-avatar)[data-pet-shape="4"] { --petW: 52px; --petH: 42px; --petRadius: 50%; --petClip: polygon(10% 30%, 50% 0, 90% 30%, 100% 100%, 0 100%); }
 
     .nameplate {
       min-width: 150px;
@@ -654,27 +758,21 @@
     }
 
     .mini-avatar {
-      width: 82px;
-      height: 82px;
-      border-radius: 24px 24px 20px 20px;
-      border: 4px solid #172033;
-      background: linear-gradient(180deg, var(--hat, #ffcf4b) 0 34%, #ffd9a8 35% 62%, var(--suit, #3e9bdc) 63%);
+      width: 88px;
+      height: 92px;
       position: relative;
-      box-shadow: inset 0 -11px rgba(0, 0, 0, .12), 0 8px 0 rgba(23, 32, 51, .12);
+      overflow: visible;
     }
 
-    .mini-avatar::before, .mini-avatar::after {
-      content: "";
+    .mini-avatar .avatar-scale {
       position: absolute;
-      top: 30px;
-      width: 9px;
-      height: 12px;
-      border-radius: 50%;
-      background: #172033;
+      left: -61px;
+      top: -62px;
+      width: 210px;
+      height: 214px;
+      transform: scale(.42);
+      transform-origin: center;
     }
-
-    .mini-avatar::before { left: 23px; }
-    .mini-avatar::after { right: 23px; }
 
     .buddy-name {
       font-size: 1.2rem;
@@ -832,6 +930,11 @@
     @keyframes bob {
       0%, 100% { transform: translateY(0) rotate(-1deg); }
       50% { transform: translateY(-10px) rotate(1deg); }
+    }
+
+    @keyframes petHop {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      45% { transform: translateY(-7px) rotate(3deg); }
     }
 
     @keyframes shake {
@@ -1032,20 +1135,66 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
-    const items = [
-      { id: "cap_rookie", slot: "hat", name: "見習いキャップ", color: "#ffcf4b", rare: "N", effect: "正解時にキャンディ+1" },
-      { id: "cap_timer", slot: "hat", name: "タイムキャップ", color: "#3e9bdc", rare: "R", effect: "5コンボで時間+4秒" },
-      { id: "cap_kanji", slot: "hat", name: "漢字はちまき", color: "#ef5b75", rare: "R", effect: "漢字問題でスコア+3" },
-      { id: "cap_star", slot: "hat", name: "スタークラウン", color: "#7759d8", rare: "SR", effect: "ガチャ券が少し増える" },
-      { id: "suit_rookie", slot: "suit", name: "見習いウェア", color: "#3e9bdc", rare: "N", effect: "正解スコア+1" },
-      { id: "suit_math", slot: "suit", name: "けいさんアーマー", color: "#6bb7ff", rare: "R", effect: "計算問題でスコア+3" },
-      { id: "suit_combo", slot: "suit", name: "コンボジャージ", color: "#47b475", rare: "R", effect: "5コンボでEXP+5" },
-      { id: "suit_rainbow", slot: "suit", name: "にじいろマント", color: "#61d6c3", rare: "SSR", effect: "全ボーナスが少し強い" },
-      { id: "acc_glasses", slot: "acc", name: "ひらめきメガネ", color: "#fff", rare: "N", effect: "パスしてもコンボが切れにくい" },
-      { id: "acc_medal", slot: "acc", name: "金メダル", color: "#ffcf4b", rare: "SR", effect: "正解スコア+2" },
-      { id: "aura_spark", slot: "aura", name: "キラキラオーラ", color: "rgba(255, 207, 75, .56)", rare: "N", effect: "攻撃ダメージが少し増える" },
-      { id: "aura_focus", slot: "aura", name: "集中オーラ", color: "rgba(119, 89, 216, .46)", rare: "R", effect: "入力問題でスコア+4" }
+    const palettes = [
+      { id: "sun", name: "サニー", color: "#ffcf4b" },
+      { id: "aqua", name: "アクア", color: "#3e9bdc" },
+      { id: "berry", name: "ベリー", color: "#ef5b75" }
     ];
+
+    const slotDefs = {
+      head: {
+        label: "頭",
+        cssVar: "head",
+        effects: ["正解時にキャンディ+1", "5コンボで時間+4秒", "漢字問題でスコア+3", "ガチャ券が少し増える", "攻撃ダメージ+2"],
+        shapes: ["キャップ", "ヘルム", "はちまき", "クラウン", "ゴーグル"]
+      },
+      body: {
+        label: "胴",
+        cssVar: "body",
+        effects: ["正解スコア+1", "計算問題でスコア+3", "5コンボでEXP+5", "全ボーナスが少し強い", "入力問題でスコア+4"],
+        shapes: ["ジャケット", "アーマー", "ローブ", "ベスト", "マント"]
+      },
+      arms: {
+        label: "腕",
+        cssVar: "arms",
+        effects: ["攻撃ダメージ+1", "不正解の反撃を少し軽くする", "コンボダメージ+1", "ことば問題でスコア+3", "キャンディ入手+1"],
+        shapes: ["グローブ", "ブレイサー", "スリーブ", "ガントレット", "リングアーム"]
+      },
+      lower: {
+        label: "下半身",
+        cssVar: "lower",
+        effects: ["マナモン撃破EXP+2", "パスしてもコンボが切れにくい", "時間ボーナス+1秒", "スコア+2", "レア装備が少し出やすい"]
+        ,shapes: ["パンツ", "スカート", "レギンス", "キュロット", "プレート"]
+      },
+      feet: {
+        label: "足",
+        cssVar: "feet",
+        effects: ["不正解時の時間減少-1秒", "5コンボでキャンディ+2", "攻撃ダメージ+1", "正解時EXP+1", "タイム開始+3秒"],
+        shapes: ["スニーカー", "ブーツ", "ウィング", "ローラー", "サンダル"]
+      },
+      pet: {
+        label: "ペット",
+        cssVar: "pet",
+        effects: ["撃破時ガチャ券チャンス", "正解時に小ボーナス", "ミス時コンボ保護", "マナモン撃破キャンディ+3", "全体を少し応援"],
+        shapes: ["ピヨ", "ペン", "スライム", "ドラ", "スター"]
+      }
+    };
+
+    const slotOrder = ["head", "body", "arms", "lower", "feet", "pet"];
+    const items = slotOrder.flatMap(slot => slotDefs[slot].shapes.flatMap((shapeName, shapeIndex) =>
+      palettes.map((palette, colorIndex) => ({
+        id: `${slot}_${shapeIndex}_${palette.id}`,
+        slot,
+        shape: shapeIndex,
+        palette: palette.id,
+        name: `${palette.name}${shapeName}`,
+        color: palette.color,
+        rare: shapeIndex >= 4 ? "SSR" : shapeIndex >= 3 ? "SR" : shapeIndex >= 2 ? "R" : "N",
+        effect: slotDefs[slot].effects[shapeIndex],
+        cssVar: slotDefs[slot].cssVar,
+        sort: slotOrder.indexOf(slot) * 100 + shapeIndex * 10 + colorIndex
+      }))
+    ));
 
     const manaMons = [
       { id: "mochi", name: "モチピヨ", color: "#ffcf4b", accent: "#ef5b75", reward: 5 },
@@ -1137,17 +1286,23 @@
     const ctx = els.canvas.getContext("2d");
 
     function defaultState() {
+      const equip = defaultEquip();
+      const owned = Object.fromEntries(Object.values(equip).map(id => [id, 1]));
       return {
         coins: 0,
         tickets: 3,
         best: 0,
         xp: 0,
         level: 1,
-        equip: { hat: "cap_rookie", suit: "suit_rookie", acc: "acc_glasses", aura: "aura_spark" },
-        owned: { cap_rookie: 1, suit_rookie: 1, acc_glasses: 1, aura_spark: 1 },
+        equip,
+        owned,
         daily: todayKey(),
         stats: { answered: 0, correct: 0, gacha: 0, combo10: 0 }
       };
+    }
+
+    function defaultEquip() {
+      return Object.fromEntries(slotOrder.map(slot => [slot, `${slot}_0_sun`]));
     }
 
     function loadState() {
@@ -1164,7 +1319,11 @@
 
     function normalizeState(raw) {
       const base = defaultState();
-      const equip = { ...base.equip, ...(raw.equip || {}) };
+      const incoming = raw.equip || {};
+      const equip = { ...base.equip };
+      for (const slot of slotOrder) {
+        if (items.some(item => item.id === incoming[slot])) equip[slot] = incoming[slot];
+      }
       const owned = { ...base.owned, ...(raw.owned || {}) };
       for (const id of Object.values(equip)) owned[id] = owned[id] || 1;
       return { ...base, ...raw, equip, owned, stats: { ...base.stats, ...(raw.stats || {}) } };
@@ -1198,6 +1357,10 @@
       return Object.values(state.equip).includes(id);
     }
 
+    function equippedShape(slot, shape) {
+      return equipped(slot).shape === shape;
+    }
+
     function setMonsterNode(node, mon) {
       node.style.setProperty("--monster", mon.color);
       node.style.setProperty("--accent", mon.accent);
@@ -1205,25 +1368,17 @@
     }
 
     function setAvatarNode(node, mini = false) {
-      const hat = equipped("hat");
-      const suit = equipped("suit");
-      const acc = equipped("acc");
-      const aura = equipped("aura");
-      node.style.setProperty("--hat", hat.color);
-      node.style.setProperty("--suit", suit.color);
-      node.style.setProperty("--acc", acc.color);
-      node.style.setProperty("--aura", aura.color);
-      node.style.setProperty("--accOpacity", acc ? 1 : 0);
-      node.style.setProperty("--auraOpacity", aura ? .65 : 0);
-      if (mini) return;
-      node.innerHTML = `<div class="equip-aura"></div><div class="equip-hat"></div><div class="avatar-head"><div class="avatar-mouth"></div></div><div class="equip-accessory"></div><div class="avatar-body"></div>`;
+      for (const slot of slotOrder) {
+        const item = equipped(slot);
+        node.style.setProperty(`--${slotDefs[slot].cssVar}`, item.color);
+        node.dataset[`${slot}Shape`] = String(item.shape);
+      }
+      const parts = `<div class="avatar-part avatar-pet"></div><div class="avatar-part avatar-feet"></div><div class="avatar-part avatar-lower"></div><div class="avatar-part avatar-arms"></div><div class="avatar-part avatar-body"></div><div class="avatar-part avatar-head"><div class="avatar-mouth"></div></div><div class="avatar-part equip-head"></div>`;
+      node.innerHTML = mini ? `<div class="avatar-scale">${parts}</div>` : parts;
     }
 
     function render() {
-      const hat = equipped("hat");
-      const suit = equipped("suit");
-      const acc = equipped("acc");
-      const aura = equipped("aura");
+      const equippedItems = slotOrder.map(equipped);
       els.levelText.textContent = `Lv.${state.level}`;
       els.coinText.textContent = state.coins;
       els.ticketText.textContent = state.tickets;
@@ -1231,12 +1386,13 @@
       els.scoreText.textContent = score;
       els.comboText.textContent = combo;
       els.timeText.textContent = timeLeft;
+      els.timeBar.max = equippedShape("feet", 4) ? 63 : 60;
       els.timeBar.value = timeLeft;
       const manaHp = Math.max(0, 100 - capture);
       els.captureText.textContent = `${manaHp}%`;
       els.captureBar.value = manaHp;
-      els.buddyName.textContent = `${hat.name} + ${suit.name}`;
-      els.buddySkill.textContent = `効果: ${[hat, suit, acc, aura].map(item => item.effect).join(" / ")}`;
+      els.buddyName.textContent = `${equipped("head").name} + ${equipped("body").name}`;
+      els.buddySkill.textContent = `効果: ${equippedItems.map(item => item.effect).join(" / ")}`;
       els.xpBar.value = state.xp % 100;
       els.xpText.textContent = `EXP ${state.xp % 100} / 100`;
       els.styleName.textContent = styleTitle();
@@ -1273,11 +1429,16 @@
     function dexTile(item) {
       const owned = state.owned[item.id];
       if (!owned) return `<div class="dex-item locked">?</div>`;
-      return `<button class="dex-item" data-equip="${item.id}" title="${item.name}"><div class="dex-dot" style="--item:${item.color}"></div><small>${item.name}</small></button>`;
+      return `<button class="dex-item" data-equip="${item.id}" title="${slotDefs[item.slot].label}: ${item.name}"><div class="dex-dot" style="--item:${item.color};clip-path:${shapePreview(item)}"></div><small>${slotDefs[item.slot].label}<br>${item.name}</small></button>`;
+    }
+
+    function shapePreview(item) {
+      const previews = ["circle(50%)", "polygon(12% 0, 88% 0, 100% 100%, 0 100%)", "polygon(50% 0, 100% 50%, 50% 100%, 0 50%)", "polygon(10% 30%, 50% 0, 90% 30%, 100% 100%, 0 100%)", "polygon(50% 0, 100% 32%, 82% 100%, 18% 100%, 0 32%)"];
+      return previews[item.shape] || "circle(50%)";
     }
 
     function renderFullDex() {
-      els.dexFull.innerHTML = items.map(item => dexTile(item)).join("");
+      els.dexFull.innerHTML = [...items].sort((a, b) => a.sort - b.sort).map(item => dexTile(item)).join("");
       els.dexFull.querySelectorAll("[data-equip]").forEach(btn => {
         btn.addEventListener("click", () => {
           equipItem(btn.dataset.equip);
@@ -1371,7 +1532,7 @@
     function startGame() {
       clearInterval(timer);
       running = true;
-      timeLeft = 60;
+      timeLeft = equippedShape("feet", 4) ? 63 : 60;
       score = 0;
       combo = 0;
       capture = 0;
@@ -1400,20 +1561,21 @@
         combo += 1;
         if (combo >= 10) state.stats.combo10 = 1;
         let gain = 10 + Math.min(10, combo);
-        if (hasEquipped("suit_rookie")) gain += 1;
-        if (hasEquipped("acc_medal")) gain += 2;
-        if (hasEquipped("cap_kanji") && current.label.includes("かんじ")) gain += 3;
-        if (hasEquipped("suit_math") && current.label.includes("けいさん")) gain += 3;
-        if (hasEquipped("aura_focus") && current.typed) gain += 4;
-        if (hasEquipped("suit_rainbow")) gain += 2;
+        if (equippedShape("body", 0)) gain += 1;
+        if (equippedShape("lower", 3)) gain += 2;
+        if (equippedShape("head", 2) && current.label.includes("かんじ")) gain += 3;
+        if (equippedShape("body", 1) && current.label.includes("けいさん")) gain += 3;
+        if (equippedShape("body", 4) && current.typed) gain += 4;
+        if (equippedShape("body", 3) || equippedShape("pet", 4)) gain += 2;
         score += gain;
-        const damage = 12 + Math.floor(combo / 2) + (hasEquipped("aura_spark") ? 2 : 0) + (hasEquipped("suit_rainbow") ? 2 : 0);
+        const damage = 12 + Math.floor(combo / 2) + (equippedShape("head", 4) ? 2 : 0) + (equippedShape("arms", 0) ? 1 : 0) + (equippedShape("arms", 2) ? Math.floor(combo / 5) : 0) + (equippedShape("feet", 2) ? 1 : 0);
         capture += damage;
-        state.coins += 2 + (hasEquipped("cap_rookie") ? 1 : 0);
-        addXp(3 + (hasEquipped("suit_combo") && combo % 5 === 0 ? 5 : 0));
+        state.coins += 2 + (equippedShape("head", 0) ? 1 : 0) + (equippedShape("arms", 4) ? 1 : 0);
+        addXp(3 + (equippedShape("body", 2) && combo % 5 === 0 ? 5 : 0) + (equippedShape("feet", 3) ? 1 : 0));
         if (combo % 5 === 0) {
-          timeLeft = Math.min(60, timeLeft + (hasEquipped("cap_timer") ? 4 : 2));
-          state.tickets += hasEquipped("cap_star") && Math.random() < .24 ? 1 : 0;
+          timeLeft = Math.min(60, timeLeft + (equippedShape("head", 1) ? 4 : 2) + (equippedShape("lower", 2) ? 1 : 0));
+          state.tickets += equippedShape("head", 3) && Math.random() < .24 ? 1 : 0;
+          state.coins += equippedShape("feet", 1) ? 2 : 0;
           burst(els.heroAvatar);
           sparkle(18);
         } else {
@@ -1424,9 +1586,10 @@
         if (button) button.classList.add("correct");
         if (capture >= 100) defeatManaMon();
       } else {
-        combo = Math.max(0, hasEquipped("acc_glasses") ? combo - 1 : 0);
+        combo = Math.max(0, (equippedShape("lower", 1) || equippedShape("pet", 2)) ? combo - 1 : 0);
         capture = Math.max(0, capture - 4);
-        timeLeft = Math.max(1, timeLeft - 3);
+        const timePenalty = equippedShape("feet", 0) || equippedShape("arms", 1) ? 2 : 3;
+        timeLeft = Math.max(1, timeLeft - timePenalty);
         els.feedback.textContent = `マナモンの反撃！ 正解は「${current.answer}」`;
         if (button) button.classList.add("wrong");
         hit(els.heroAvatar);
@@ -1437,11 +1600,11 @@
     }
 
     function defeatManaMon() {
-      const reward = currentManaMon.reward + Math.floor(combo / 4);
-      const ticketBonus = Math.random() < .28 || hasEquipped("cap_star") ? 1 : 0;
+      const reward = currentManaMon.reward + Math.floor(combo / 4) + (equippedShape("pet", 3) ? 3 : 0);
+      const ticketBonus = Math.random() < (equippedShape("lower", 4) ? .34 : .28) || equippedShape("head", 3) || equippedShape("pet", 0) ? 1 : 0;
       state.coins += reward;
       state.tickets += ticketBonus;
-      addXp(6);
+      addXp(6 + (equippedShape("lower", 0) ? 2 : 0));
       toast(`${currentManaMon.name}をしずめた！ キャンディ+${reward}${ticketBonus ? " ガチャ券+1" : ""}`);
       capture = 0;
       currentManaMon = pick(manaMons);
@@ -1508,7 +1671,7 @@
       addXp(state.owned[item.id] > 1 ? 18 : 8);
       saveState();
       els.gachaStage.innerHTML = `<div class="dex-item result-item"><div class="dex-dot" style="--item:${item.color}"></div></div>`;
-      els.gachaText.textContent = `${item.rare} ${item.name}！ ${item.slot}に装備したよ。`;
+      els.gachaText.textContent = `${item.rare} ${item.name}！ ${slotDefs[item.slot].label}に装備したよ。`;
       sparkle(28);
       render();
     }
@@ -1623,3 +1786,4 @@
   </script>
 </body>
 </html>
+
