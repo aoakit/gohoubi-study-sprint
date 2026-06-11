@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>まなモン・スプリント</title>
+  <title>ごほうび学習スプリント</title>
   <style>
     :root {
       color-scheme: light;
@@ -217,351 +217,6 @@
       font-weight: 800;
     }
 
-    .trainer, .avatar-spot, .monster-spot {
-      display: grid;
-      justify-items: center;
-      gap: 8px;
-    }
-
-    .trainer-body {
-      width: 112px;
-      height: 136px;
-      position: relative;
-      filter: drop-shadow(0 16px 10px rgba(31, 48, 82, .18));
-    }
-
-    .trainer-body::before {
-      content: "";
-      position: absolute;
-      left: 23px;
-      top: 52px;
-      width: 66px;
-      height: 72px;
-      border-radius: 28px 28px 18px 18px;
-      background: linear-gradient(160deg, #3e9bdc, #75d0ff);
-      border: 4px solid #172033;
-    }
-
-    .trainer-body::after {
-      content: "";
-      position: absolute;
-      left: 28px;
-      top: 12px;
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: #ffd9a8;
-      border: 4px solid #172033;
-      box-shadow: inset 0 -7px rgba(190, 117, 60, .18);
-    }
-
-    .face {
-      position: absolute;
-      left: 44px;
-      top: 38px;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #172033;
-      box-shadow: 22px 0 #172033;
-      z-index: 2;
-    }
-
-    .face::after {
-      content: "";
-      position: absolute;
-      left: 6px;
-      top: 14px;
-      width: 17px;
-      height: 8px;
-      border-bottom: 4px solid #172033;
-      border-radius: 0 0 20px 20px;
-    }
-
-    .avatar {
-      width: 210px;
-      height: 214px;
-      position: relative;
-      display: grid;
-      place-items: center;
-      animation: bob 1.8s ease-in-out infinite;
-      filter: drop-shadow(0 18px 12px rgba(31, 48, 82, .18));
-    }
-
-    .monster {
-      width: 154px;
-      height: 154px;
-      position: relative;
-      display: grid;
-      place-items: center;
-      animation: bob 1.8s ease-in-out infinite;
-      filter: drop-shadow(0 18px 12px rgba(31, 48, 82, .18));
-    }
-
-    .monster-core {
-      width: 104px;
-      height: 96px;
-      border: 5px solid #172033;
-      border-radius: 42% 46% 36% 38%;
-      background: var(--monster, #47b475);
-      position: relative;
-      box-shadow: inset 0 -15px rgba(0, 0, 0, .13), inset 12px 10px rgba(255, 255, 255, .24);
-    }
-
-    .monster-core::before,
-    .monster-core::after {
-      content: "";
-      position: absolute;
-      top: 31px;
-      width: 13px;
-      height: 17px;
-      border-radius: 50%;
-      background: #172033;
-    }
-
-    .monster-core::before { left: 28px; }
-    .monster-core::after { right: 28px; }
-
-    .monster-mouth {
-      position: absolute;
-      left: 50%;
-      top: 59px;
-      width: 30px;
-      height: 16px;
-      transform: translateX(-50%);
-      border-bottom: 5px solid #172033;
-      border-radius: 0 0 30px 30px;
-    }
-
-    .horn, .ear {
-      position: absolute;
-      z-index: -1;
-      background: var(--accent, #ffcf4b);
-      border: 5px solid #172033;
-    }
-
-    .horn {
-      width: 32px;
-      height: 52px;
-      top: 8px;
-      left: 60px;
-      clip-path: polygon(50% 0, 100% 100%, 0 100%);
-    }
-
-    .ear.left, .ear.right {
-      width: 40px;
-      height: 48px;
-      top: 29px;
-      border-radius: 50% 50% 20% 50%;
-    }
-
-    .ear.left { left: 17px; transform: rotate(-28deg); }
-    .ear.right { right: 17px; transform: rotate(28deg) scaleX(-1); }
-
-    .avatar-part {
-      position: absolute;
-      pointer-events: none;
-    }
-
-    .avatar-body {
-      width: 94px;
-      height: 84px;
-      left: 58px;
-      top: 76px;
-      border: 5px solid #172033;
-      border-radius: var(--bodyRadius, 30px 30px 20px 20px);
-      background: var(--body, #3e9bdc);
-      clip-path: var(--bodyClip, none);
-      box-shadow: inset 0 -16px rgba(0, 0, 0, .13), inset 12px 10px rgba(255, 255, 255, .2);
-      z-index: 3;
-    }
-
-    .avatar-head {
-      width: 82px;
-      height: 76px;
-      left: 64px;
-      top: 16px;
-      border: 5px solid #172033;
-      border-radius: 50% 50% 44% 44%;
-      background: #ffd9a8;
-      box-shadow: inset 0 -15px rgba(0, 0, 0, .13), inset 12px 10px rgba(255, 255, 255, .24);
-      z-index: 6;
-    }
-
-    .avatar-head::before,
-    .avatar-head::after {
-      content: "";
-      position: absolute;
-      top: 28px;
-      width: 13px;
-      height: 17px;
-      border-radius: 50%;
-      background: #172033;
-    }
-
-    .avatar-head::before { left: 21px; }
-    .avatar-head::after { right: 21px; }
-
-    .avatar-mouth {
-      position: absolute;
-      left: 50%;
-      top: 49px;
-      width: 30px;
-      height: 16px;
-      transform: translateX(-50%);
-      border-bottom: 5px solid #172033;
-      border-radius: 0 0 30px 30px;
-    }
-
-    .equip-head {
-      width: var(--headW, 104px);
-      height: var(--headH, 38px);
-      left: var(--headL, 53px);
-      top: var(--headT, 0);
-      border: 5px solid #172033;
-      border-radius: var(--headRadius, 34px 34px 12px 12px);
-      background: var(--head, #ffcf4b);
-      clip-path: var(--headClip, none);
-      box-shadow: inset 0 -8px rgba(0, 0, 0, .12);
-      z-index: 8;
-    }
-
-    .equip-head::after {
-      content: var(--headAfter, "");
-      position: absolute;
-      left: var(--headAfterL, 20px);
-      right: var(--headAfterR, 20px);
-      bottom: var(--headAfterB, -16px);
-      height: var(--headAfterH, 14px);
-      border: 5px solid #172033;
-      border-top: 0;
-      border-radius: 0 0 20px 20px;
-      background: inherit;
-    }
-
-    .avatar-arms {
-      inset: 0;
-      z-index: 2;
-    }
-
-    .avatar-arms::before,
-    .avatar-arms::after {
-      content: "";
-      position: absolute;
-      top: var(--armT, 88px);
-      width: var(--armW, 30px);
-      height: var(--armH, 68px);
-      border: 5px solid #172033;
-      border-radius: var(--armRadius, 22px);
-      background: var(--arms, #47b475);
-      box-shadow: inset 0 -10px rgba(0, 0, 0, .12);
-    }
-
-    .avatar-arms::before {
-      left: var(--armL, 31px);
-      transform: rotate(var(--armRotL, 22deg));
-      clip-path: var(--armClip, none);
-    }
-
-    .avatar-arms::after {
-      right: var(--armR, 31px);
-      transform: rotate(var(--armRotR, -22deg));
-      clip-path: var(--armClip, none);
-    }
-
-    .avatar-lower {
-      width: 86px;
-      height: 48px;
-      left: 62px;
-      top: 148px;
-      border: 5px solid #172033;
-      border-radius: var(--lowerRadius, 18px 18px 24px 24px);
-      background: var(--lower, #7759d8);
-      clip-path: var(--lowerClip, none);
-      box-shadow: inset 0 -10px rgba(0, 0, 0, .12);
-      z-index: 2;
-    }
-
-    .avatar-feet {
-      inset: 0;
-      z-index: 4;
-    }
-
-    .avatar-feet::before,
-    .avatar-feet::after {
-      content: "";
-      position: absolute;
-      top: var(--footT, 184px);
-      width: var(--footW, 42px);
-      height: var(--footH, 24px);
-      border: 5px solid #172033;
-      border-radius: var(--footRadius, 18px 18px 10px 10px);
-      background: var(--feet, #ef5b75);
-      box-shadow: inset 0 -7px rgba(0, 0, 0, .12);
-      clip-path: var(--footClip, none);
-    }
-
-    .avatar-feet::before { left: 58px; transform: rotate(var(--footRotL, -5deg)); }
-    .avatar-feet::after { right: 58px; transform: rotate(var(--footRotR, 5deg)); }
-
-    .avatar-pet {
-      width: var(--petW, 46px);
-      height: var(--petH, 42px);
-      left: var(--petL, 154px);
-      top: var(--petT, 142px);
-      border: 4px solid #172033;
-      border-radius: var(--petRadius, 50% 50% 38% 42%);
-      background: var(--pet, #ffcf4b);
-      clip-path: var(--petClip, none);
-      box-shadow: inset 0 -8px rgba(0, 0, 0, .12), 0 8px 0 rgba(23, 32, 51, .1);
-      z-index: 5;
-      animation: petHop 1.4s ease-in-out infinite;
-    }
-
-    .avatar-pet::before,
-    .avatar-pet::after {
-      content: "";
-      position: absolute;
-      top: 17px;
-      width: 6px;
-      height: 8px;
-      border-radius: 50%;
-      background: #172033;
-    }
-
-    .avatar-pet::before { left: 13px; }
-    .avatar-pet::after { right: 13px; }
-
-    :is(.avatar, .mini-avatar)[data-head-shape="1"] { --headW: 92px; --headH: 52px; --headL: 59px; --headT: -5px; --headRadius: 50% 50% 18px 18px; --headAfter: none; }
-    :is(.avatar, .mini-avatar)[data-head-shape="2"] { --headW: 112px; --headH: 34px; --headL: 49px; --headT: 8px; --headRadius: 8px; --headAfterL: 42px; --headAfterR: 42px; --headAfterB: 20px; --headAfterH: 42px; }
-    :is(.avatar, .mini-avatar)[data-head-shape="3"] { --headW: 110px; --headH: 48px; --headL: 50px; --headT: -2px; --headRadius: 12px 12px 30px 30px; --headClip: polygon(0 34%, 50% 0, 100% 34%, 88% 100%, 12% 100%); --headAfter: none; }
-    :is(.avatar, .mini-avatar)[data-head-shape="4"] { --headW: 114px; --headH: 30px; --headL: 48px; --headT: 6px; --headRadius: 999px; --headAfter: none; }
-
-    :is(.avatar, .mini-avatar)[data-body-shape="1"] { --bodyRadius: 12px; --bodyClip: polygon(8% 0, 92% 0, 100% 88%, 50% 100%, 0 88%); }
-    :is(.avatar, .mini-avatar)[data-body-shape="2"] { --bodyRadius: 42px 42px 16px 16px; --bodyClip: none; }
-    :is(.avatar, .mini-avatar)[data-body-shape="3"] { --bodyRadius: 18px; --bodyClip: polygon(18% 0, 82% 0, 100% 100%, 0 100%); }
-    :is(.avatar, .mini-avatar)[data-body-shape="4"] { --bodyRadius: 34px 14px 34px 14px; --bodyClip: none; }
-
-    :is(.avatar, .mini-avatar)[data-arms-shape="1"] { --armW: 24px; --armH: 78px; --armRadius: 12px; --armRotL: 44deg; --armRotR: -44deg; }
-    :is(.avatar, .mini-avatar)[data-arms-shape="2"] { --armW: 36px; --armH: 56px; --armRadius: 8px 20px 20px 8px; --armClip: polygon(0 0, 100% 10%, 85% 100%, 10% 90%); }
-    :is(.avatar, .mini-avatar)[data-arms-shape="3"] { --armW: 28px; --armH: 62px; --armRadius: 999px; --armT: 80px; --armRotL: -18deg; --armRotR: 18deg; }
-    :is(.avatar, .mini-avatar)[data-arms-shape="4"] { --armW: 38px; --armH: 38px; --armRadius: 50%; --armT: 100px; --armL: 27px; --armR: 27px; }
-
-    :is(.avatar, .mini-avatar)[data-lower-shape="1"] { --lowerRadius: 8px; --lowerClip: polygon(0 0, 100% 0, 88% 100%, 12% 100%); }
-    :is(.avatar, .mini-avatar)[data-lower-shape="2"] { --lowerRadius: 50% 50% 18px 18px; }
-    :is(.avatar, .mini-avatar)[data-lower-shape="3"] { --lowerRadius: 12px 12px 4px 4px; --lowerClip: polygon(0 0, 100% 0, 72% 100%, 28% 100%); }
-    :is(.avatar, .mini-avatar)[data-lower-shape="4"] { --lowerRadius: 26px; --lowerClip: polygon(50% 0, 100% 32%, 82% 100%, 18% 100%, 0 32%); }
-
-    :is(.avatar, .mini-avatar)[data-feet-shape="1"] { --footW: 34px; --footH: 32px; --footRadius: 10px; --footRotL: -14deg; --footRotR: 14deg; }
-    :is(.avatar, .mini-avatar)[data-feet-shape="2"] { --footW: 48px; --footH: 18px; --footRadius: 999px; --footT: 190px; }
-    :is(.avatar, .mini-avatar)[data-feet-shape="3"] { --footW: 36px; --footH: 28px; --footRadius: 50% 50% 12px 12px; --footClip: polygon(50% 0, 100% 100%, 0 100%); }
-    :is(.avatar, .mini-avatar)[data-feet-shape="4"] { --footW: 46px; --footH: 28px; --footRadius: 8px 22px 12px 12px; --footRotL: 3deg; --footRotR: -3deg; }
-
-    :is(.avatar, .mini-avatar)[data-pet-shape="1"] { --petW: 40px; --petH: 54px; --petRadius: 50% 50% 38% 38%; --petT: 132px; }
-    :is(.avatar, .mini-avatar)[data-pet-shape="2"] { --petW: 56px; --petH: 36px; --petRadius: 20px 28px 18px 18px; --petL: 150px; --petT: 150px; }
-    :is(.avatar, .mini-avatar)[data-pet-shape="3"] { --petW: 48px; --petH: 48px; --petRadius: 12px; --petClip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
-    :is(.avatar, .mini-avatar)[data-pet-shape="4"] { --petW: 52px; --petH: 42px; --petRadius: 50%; --petClip: polygon(10% 30%, 50% 0, 90% 30%, 100% 100%, 0 100%); }
-
     .nameplate {
       min-width: 150px;
       text-align: center;
@@ -571,20 +226,6 @@
       border: 3px solid #172033;
       font-weight: 900;
       box-shadow: 0 7px 0 rgba(23, 32, 51, .13);
-    }
-
-    .vs {
-      align-self: center;
-      display: grid;
-      place-items: center;
-      width: 68px;
-      height: 68px;
-      border-radius: 50%;
-      background: #fff;
-      border: 4px solid #172033;
-      font-size: 1.45rem;
-      font-weight: 1000;
-      box-shadow: 0 8px 0 rgba(23, 32, 51, .12);
     }
 
     .hud {
@@ -789,31 +430,16 @@
       font-size: 1.05rem;
     }
 
-    .buddy-card {
+    .point-summary {
       display: grid;
-      grid-template-columns: 88px 1fr;
-      gap: 12px;
-      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid rgba(23, 32, 51, .12);
+      background: rgba(255, 255, 255, .72);
     }
 
-    .mini-avatar {
-      width: 88px;
-      height: 92px;
-      position: relative;
-      overflow: visible;
-    }
-
-    .mini-avatar .avatar-scale {
-      position: absolute;
-      left: -61px;
-      top: -62px;
-      width: 210px;
-      height: 214px;
-      transform: scale(.42);
-      transform-origin: center;
-    }
-
-    .buddy-name {
+    .point-total {
       font-size: 1.2rem;
       font-weight: 1000;
     }
@@ -1042,14 +668,11 @@
       .logo { width: 50px; height: 50px; border-radius: 14px; }
       .battle-row { grid-template-columns: 1fr; align-items: center; }
       .study-board { grid-template-columns: 1fr; }
-      .vs { width: 52px; height: 52px; justify-self: center; }
       .trainer-body { display: none; }
       .mode-tabs, .toolbar { grid-template-columns: repeat(2, 1fr); }
       .choices { grid-template-columns: 1fr; }
       .answer-row { grid-template-columns: 1fr; }
       .question-card { min-height: 142px; }
-      .avatar { width: 154px; height: 174px; }
-      .monster { width: 130px; height: 130px; }
       .hud { grid-template-columns: 1fr 1fr; }
       .top-stats .pill { flex: 1 1 130px; justify-content: center; }
     }
@@ -1061,8 +684,8 @@
       <div class="brand">
         <div class="logo" aria-hidden="true"></div>
         <div>
-          <h1>まなモン・スプリント</h1>
-          <p class="tagline">勉強でマナモンとバトル。ためたポイントをリアルごほうびに交換しよう</p>
+          <h1>ごほうび学習スプリント</h1>
+          <p class="tagline">問題を解いてガチャ券をため、ポイントをリアルごほうびに交換しよう</p>
         </div>
       </div>
       <div class="top-stats" aria-label="プレイヤーの記録">
@@ -1114,7 +737,7 @@
 
             <div class="question-card" aria-live="polite">
               <div id="qLabel" class="q-label">スタートを押してね</div>
-              <div id="question" class="question">マナモン出現待ち</div>
+              <div id="question" class="question">スタート待ち</div>
             </div>
 
             <div id="choices" class="choices"></div>
@@ -1140,14 +763,11 @@
       <aside>
         <div class="panel">
           <h2>ごほうびポイント</h2>
-          <div class="buddy-card">
-            <div id="buddyIcon" class="mini-avatar"></div>
-            <div>
-              <div id="buddyName" class="buddy-name">0pt</div>
-              <div id="buddySkill" class="tiny">100ptで100円、500ptで好きな本、2000ptでお寿司</div>
-              <progress id="xpBar" max="100" value="0"></progress>
-              <div id="xpText" class="tiny">EXP 0 / 100</div>
-            </div>
+          <div class="point-summary">
+            <div id="buddyName" class="point-total">0pt</div>
+            <div id="buddySkill" class="tiny">100ptで100円、500ptで好きな本、2000ptでお寿司</div>
+            <progress id="xpBar" max="100" value="0"></progress>
+            <div id="xpText" class="tiny">EXP 0 / 100</div>
           </div>
         </div>
 
@@ -1316,7 +936,6 @@
       gachaBtn: document.querySelector("#gachaBtn"),
       dexBtn: document.querySelector("#dexBtn"),
       resetBtn: document.querySelector("#resetBtn"),
-      buddyIcon: document.querySelector("#buddyIcon"),
       buddyName: document.querySelector("#buddyName"),
       buddySkill: document.querySelector("#buddySkill"),
       xpBar: document.querySelector("#xpBar"),
@@ -1388,23 +1007,6 @@
       return [...arr].sort(() => Math.random() - .5);
     }
 
-    function setAvatarNode(node, mini = false) {
-      node.style.setProperty("--head", "#ffcf4b");
-      node.style.setProperty("--body", "#3e9bdc");
-      node.style.setProperty("--arms", "#3e9bdc");
-      node.style.setProperty("--lower", "#7759d8");
-      node.style.setProperty("--feet", "#ef5b75");
-      node.style.setProperty("--pet", "#ffcf4b");
-      node.dataset.headShape = "0";
-      node.dataset.bodyShape = "0";
-      node.dataset.armsShape = "0";
-      node.dataset.lowerShape = "0";
-      node.dataset.feetShape = "0";
-      node.dataset.petShape = "0";
-      const parts = `<div class="avatar-part avatar-feet"></div><div class="avatar-part avatar-lower"></div><div class="avatar-part avatar-arms"></div><div class="avatar-part avatar-body"></div><div class="avatar-part avatar-head"><div class="avatar-mouth"></div></div>`;
-      node.innerHTML = mini ? `<div class="avatar-scale">${parts}</div>` : parts;
-    }
-
     function render() {
       els.levelText.textContent = `Lv.${state.level}`;
       els.coinText.textContent = state.coins;
@@ -1426,7 +1028,6 @@
       els.buddySkill.textContent = nextRewardText();
       els.xpBar.value = state.xp % 100;
       els.xpText.textContent = `EXP ${state.xp % 100} / 100`;
-      setAvatarNode(els.buddyIcon, true);
       renderMissions();
       renderDexPreview();
     }
@@ -1704,7 +1305,7 @@
         timeLeft = Math.max(1, timeLeft - 3);
         els.feedback.textContent = `おしい！ 正解は「${current.answer}」`;
         if (button) button.classList.add("wrong");
-        hit(els.buddyIcon);
+        hit(els.stage || els.question);
       }
       saveState();
       render();
@@ -1897,4 +1498,6 @@
   </script>
 </body>
 </html>
+
+
 
