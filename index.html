@@ -138,6 +138,77 @@
       align-items: start;
     }
 
+    .start-hero {
+      margin: 14px 0 16px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 8px;
+      background: #fff;
+      border: 3px solid #172033;
+      box-shadow: 0 10px 0 rgba(23, 32, 51, .12);
+    }
+
+    .start-copy {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .start-copy span {
+      color: var(--muted);
+      font-weight: 1000;
+      font-size: .9rem;
+    }
+
+    .start-copy strong {
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      line-height: 1.08;
+    }
+
+    .start-copy small {
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .big-start {
+      min-height: 72px;
+      min-width: 220px;
+      border-radius: 8px;
+      border: 3px solid #172033;
+      background: var(--sun);
+      box-shadow: 0 8px 0 rgba(23, 32, 51, .18);
+      font-size: 1.35rem;
+      font-weight: 1000;
+    }
+
+    .start-facts {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .start-fact {
+      min-height: 48px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #edf3ff;
+      border: 1px solid rgba(23, 32, 51, .1);
+      font-weight: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .start-fact small {
+      color: var(--muted);
+      font-weight: 900;
+    }
+
     .stage, .panel, .toolbar {
       background: var(--card);
       border: 1px solid rgba(23, 32, 51, .08);
@@ -709,6 +780,12 @@
         gap: 6px;
       }
 
+      .top-stats .pill:nth-child(1),
+      .top-stats .pill:nth-child(2),
+      .top-stats .pill:nth-child(6) {
+        display: none;
+      }
+
       .pill {
         min-height: 34px;
         padding: 6px 8px;
@@ -719,6 +796,54 @@
 
       .grid {
         gap: 8px;
+      }
+
+      .start-hero {
+        margin: 8px 0;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 10px;
+        border-width: 2px;
+        box-shadow: 0 5px 0 rgba(23, 32, 51, .13);
+      }
+
+      .start-copy span {
+        font-size: .78rem;
+      }
+
+      .start-copy strong {
+        font-size: 1.2rem;
+      }
+
+      .start-copy small {
+        font-size: .78rem;
+      }
+
+      .big-start {
+        width: 100%;
+        min-width: 0;
+        min-height: 64px;
+        font-size: 1.25rem;
+        box-shadow: 0 5px 0 rgba(23, 32, 51, .18);
+      }
+
+      .start-facts {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .start-fact {
+        min-height: 44px;
+        padding: 7px 6px;
+        display: grid;
+        justify-items: center;
+        gap: 1px;
+        text-align: center;
+        font-size: .88rem;
+      }
+
+      .start-fact small {
+        font-size: .66rem;
       }
 
       .stage, .panel, .toolbar {
@@ -735,9 +860,7 @@
       }
 
       .study-board {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        min-height: auto;
-        gap: 6px;
+        display: none;
       }
 
       .study-card {
@@ -788,7 +911,11 @@
         gap: 10px;
       }
 
-      .mode-tabs, .toolbar { grid-template-columns: repeat(2, 1fr); }
+      .mode-tabs { grid-template-columns: repeat(2, 1fr); }
+
+      .toolbar {
+        grid-template-columns: repeat(3, 1fr);
+      }
 
       .tab {
         min-height: 42px;
@@ -857,6 +984,10 @@
         padding: 8px;
         border-radius: 8px 8px 0 0;
         backdrop-filter: blur(14px);
+      }
+
+      #startBtn {
+        display: none;
       }
 
       .tool {
@@ -949,6 +1080,20 @@
         <div class="pill">🏆 <span id="bestText">0</span></div>
       </div>
     </header>
+
+    <section class="start-hero" aria-label="1分チャレンジ開始">
+      <div class="start-copy">
+        <span>まずはここから</span>
+        <strong>1分で10問正解をめざそう</strong>
+        <small id="heroGoalText">合格5回でガチャ券1枚。ポイントをごほうびに交換できます。</small>
+      </div>
+      <button id="heroStartBtn" class="big-start">▶ 1分チャレンジ開始</button>
+      <div class="start-facts" aria-label="現在の状態">
+        <div class="start-fact"><small>時間</small><span>60秒</span></div>
+        <div class="start-fact"><small>ガチャ券</small><span id="heroTicketText">0枚</span></div>
+        <div class="start-fact"><small>次の券</small><span id="heroPassText">0/5</span></div>
+      </div>
+    </section>
 
     <main class="grid">
       <section>
@@ -1175,6 +1320,10 @@
       passText: document.querySelector("#passText"),
       bestText: document.querySelector("#bestText"),
       pointText: document.querySelector("#pointText"),
+      heroStartBtn: document.querySelector("#heroStartBtn"),
+      heroGoalText: document.querySelector("#heroGoalText"),
+      heroTicketText: document.querySelector("#heroTicketText"),
+      heroPassText: document.querySelector("#heroPassText"),
       poolText: document.querySelector("#poolText"),
       boardPointText: document.querySelector("#boardPointText"),
       boardRewardText: document.querySelector("#boardRewardText"),
@@ -1276,6 +1425,9 @@
       els.ticketText.textContent = state.tickets;
       els.passText.textContent = `${state.passCount}/${state.nextTicketPassTarget}`;
       els.pointText.textContent = `${state.points}pt`;
+      els.heroTicketText.textContent = `${state.tickets}枚`;
+      els.heroPassText.textContent = `${state.passCount}/${state.nextTicketPassTarget}`;
+      els.heroGoalText.textContent = `${state.nextTicketPassTarget - state.passCount}回合格で次のガチャ券。いま ${state.points}pt`;
       els.boardPointText.textContent = `${state.points}pt`;
       els.boardRewardText.textContent = nextRewardText();
       els.todayText.textContent = `${state.stats.answered}問`;
@@ -1539,6 +1691,13 @@
       }, 1000);
     }
 
+    function startFromHero() {
+      startGame();
+      if (matchMedia("(max-width: 640px)").matches) {
+        document.querySelector(".quiz").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
     function answer(value, button) {
       if (!running || !current) return;
       answered += 1;
@@ -1746,6 +1905,7 @@
       });
     });
 
+    els.heroStartBtn.addEventListener("click", startFromHero);
     els.startBtn.addEventListener("click", startGame);
     els.submitBtn.addEventListener("click", () => answer(els.typedAnswer.value));
     els.skipBtn.addEventListener("click", skipQuestion);
