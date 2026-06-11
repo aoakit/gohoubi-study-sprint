@@ -178,6 +178,45 @@
       min-height: 216px;
     }
 
+    .study-board {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      min-height: 216px;
+      align-content: center;
+    }
+
+    .study-card {
+      min-height: 150px;
+      border-radius: 8px;
+      border: 3px solid #172033;
+      background: rgba(255, 255, 255, .86);
+      box-shadow: 0 9px 0 rgba(23, 32, 51, .12);
+      padding: 14px;
+      display: grid;
+      align-content: center;
+      gap: 8px;
+    }
+
+    .study-card span {
+      color: var(--muted);
+      font-weight: 1000;
+      font-size: .84rem;
+    }
+
+    .study-card strong {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1;
+    }
+
+    .study-card p {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
     .trainer, .avatar-spot, .monster-spot {
       display: grid;
       justify-items: center;
@@ -1002,6 +1041,7 @@
       .brand { align-items: flex-start; }
       .logo { width: 50px; height: 50px; border-radius: 14px; }
       .battle-row { grid-template-columns: 1fr; align-items: center; }
+      .study-board { grid-template-columns: 1fr; }
       .vs { width: 52px; height: 52px; justify-self: center; }
       .trainer-body { display: none; }
       .mode-tabs, .toolbar { grid-template-columns: repeat(2, 1fr); }
@@ -1039,22 +1079,28 @@
         <div class="stage">
           <div class="world">
             <canvas id="fxCanvas" width="900" height="300" aria-hidden="true"></canvas>
-            <div class="battle-row">
-              <div class="avatar-spot">
-                <div id="heroAvatar" class="avatar" aria-label="自分のアバター"></div>
-                <div id="styleName" class="nameplate">見習いスタイル</div>
+            <div class="study-board">
+              <div class="study-card">
+                <span>問題プール</span>
+                <strong id="poolText">1000+</strong>
+                <p>生成式で同じ問題を出しにくくしています</p>
               </div>
-              <div class="vs">VS</div>
-              <div class="monster-spot">
-                <div id="enemyMonster" class="monster" aria-label="あいてのマナモン"></div>
-                <div id="enemyName" class="nameplate">モチピヨ</div>
+              <div class="study-card">
+                <span>ごほうびポイント</span>
+                <strong id="boardPointText">0pt</strong>
+                <p id="boardRewardText">次のごほうびまであと少し</p>
+              </div>
+              <div class="study-card">
+                <span>今日の集中</span>
+                <strong id="todayText">0問</strong>
+                <p>短いタイムアタックを何度も回せます</p>
               </div>
             </div>
             <div class="hud">
               <div class="meter"><span>のこり時間</span><strong id="timeText">60</strong><progress id="timeBar" max="60" value="60"></progress></div>
               <div class="meter"><span>スコア</span><strong id="scoreText">0</strong></div>
               <div class="meter"><span>コンボ</span><strong id="comboText">0</strong></div>
-              <div class="meter"><span>マナモンHP</span><strong id="captureText">100%</strong><progress id="captureBar" max="100" value="100"></progress></div>
+              <div class="meter"><span>正解数</span><strong id="captureText">0</strong><progress id="captureBar" max="30" value="0"></progress></div>
             </div>
           </div>
 
@@ -1119,7 +1165,7 @@
           <h2>やりこみ</h2>
           <details open>
             <summary>コンボのコツ</summary>
-            <p class="tiny">正解するとこちらの攻撃。不正解だとマナモンが反撃して時間とコンボが削られる。</p>
+            <p class="tiny">直近の問題はなるべく避けるので、同じ問題ばかりになりにくい。</p>
           </details>
           <details>
             <summary>ガチャのルール</summary>
@@ -1172,16 +1218,6 @@
       { id: "movie", name: "映画・動画タイム", cost: 800, note: "家族で決める特別時間" },
       { id: "toy", name: "好きなおもちゃ相談券", cost: 1200, note: "買う前に家族会議" },
       { id: "sushi", name: "お寿司", cost: 2000, note: "大きな目標" }
-    ];
-
-    const manaMons = [
-      { id: "mochi", name: "モチピヨ", color: "#ffcf4b", accent: "#ef5b75", reward: 5 },
-      { id: "sora", name: "ソラペン", color: "#3e9bdc", accent: "#dff5ff", reward: 6 },
-      { id: "kusa", name: "クサノコ", color: "#47b475", accent: "#ffcf4b", reward: 6 },
-      { id: "hono", name: "ホノラビ", color: "#ef5b75", accent: "#ffcf4b", reward: 8 },
-      { id: "mame", name: "マメタンク", color: "#8fd16a", accent: "#7759d8", reward: 8 },
-      { id: "kira", name: "キラリン", color: "#7759d8", accent: "#3e9bdc", reward: 10 },
-      { id: "niji", name: "ニジドラ", color: "#61d6c3", accent: "#ef5b75", reward: 12 }
     ];
 
     const kanjiBank = [
@@ -1250,8 +1286,8 @@
     let answered = 0;
     let correct = 0;
     let particles = [];
-    let currentManaMon = manaMons[0];
     let recentQuestions = [];
+    const mathTypes = ["add", "sub", "mul", "clock", "money", "missingAdd", "missingSub", "compare", "sequence", "double", "half", "length", "table", "threeAdd", "threeSub", "nearestTen", "placeValue", "calendar", "fraction", "division"];
 
     const els = {
       levelText: document.querySelector("#levelText"),
@@ -1259,10 +1295,10 @@
       ticketText: document.querySelector("#ticketText"),
       bestText: document.querySelector("#bestText"),
       pointText: document.querySelector("#pointText"),
-      heroAvatar: document.querySelector("#heroAvatar"),
-      styleName: document.querySelector("#styleName"),
-      enemyMonster: document.querySelector("#enemyMonster"),
-      enemyName: document.querySelector("#enemyName"),
+      poolText: document.querySelector("#poolText"),
+      boardPointText: document.querySelector("#boardPointText"),
+      boardRewardText: document.querySelector("#boardRewardText"),
+      todayText: document.querySelector("#todayText"),
       timeText: document.querySelector("#timeText"),
       timeBar: document.querySelector("#timeBar"),
       scoreText: document.querySelector("#scoreText"),
@@ -1352,12 +1388,6 @@
       return [...arr].sort(() => Math.random() - .5);
     }
 
-    function setMonsterNode(node, mon) {
-      node.style.setProperty("--monster", mon.color);
-      node.style.setProperty("--accent", mon.accent);
-      node.innerHTML = `<div class="ear left"></div><div class="ear right"></div><div class="horn"></div><div class="monster-core"><div class="monster-mouth"></div></div>`;
-    }
-
     function setAvatarNode(node, mini = false) {
       node.style.setProperty("--head", "#ffcf4b");
       node.style.setProperty("--body", "#3e9bdc");
@@ -1380,23 +1410,22 @@
       els.coinText.textContent = state.coins;
       els.ticketText.textContent = state.tickets;
       els.pointText.textContent = `${state.points}pt`;
+      els.boardPointText.textContent = `${state.points}pt`;
+      els.boardRewardText.textContent = nextRewardText();
+      els.todayText.textContent = `${state.stats.answered}問`;
+      els.poolText.textContent = `${estimateQuestionSpace().toLocaleString()}+`;
       els.bestText.textContent = state.best;
       els.scoreText.textContent = score;
       els.comboText.textContent = combo;
       els.timeText.textContent = timeLeft;
       els.timeBar.max = 60;
       els.timeBar.value = timeLeft;
-      const manaHp = Math.max(0, 100 - capture);
-      els.captureText.textContent = `${manaHp}%`;
-      els.captureBar.value = manaHp;
+      els.captureText.textContent = correct;
+      els.captureBar.value = Math.min(30, correct);
       els.buddyName.textContent = `${state.points}pt`;
       els.buddySkill.textContent = nextRewardText();
       els.xpBar.value = state.xp % 100;
       els.xpText.textContent = `EXP ${state.xp % 100} / 100`;
-      els.styleName.textContent = styleTitle();
-      setAvatarNode(els.heroAvatar);
-      setMonsterNode(els.enemyMonster, currentManaMon);
-      els.enemyName.textContent = currentManaMon.name;
       setAvatarNode(els.buddyIcon, true);
       renderMissions();
       renderDexPreview();
@@ -1495,7 +1524,7 @@
     }
 
     function makeMath() {
-      const type = pick(["add", "sub", "mul", "clock", "money", "missingAdd", "missingSub", "compare", "sequence", "double", "half", "length", "table"]);
+      const type = pick(mathTypes);
       if (type === "add") {
         const a = rand(6, 89), b = rand(4, 69);
         return choiceQuestion("けいさん", `${a} + ${b} = ?`, String(a + b), numberChoices(a + b));
@@ -1545,8 +1574,36 @@
         const cm = rand(1, 8), mm = rand(1, 9), ans = cm * 10 + mm;
         return choiceQuestion("長さ", `${cm}cm${mm}mmは何mm？`, `${ans}mm`, shuffle([`${ans}mm`, `${ans + 10}mm`, `${Math.max(1, ans - 5)}mm`, `${cm + mm}mm`]));
       }
-      const legs = rand(2, 6), chairs = rand(2, 9), ans = legs * chairs;
-      return choiceQuestion("まとまり", `${legs}本足のいすが${chairs}こ。足は全部で？`, String(ans), numberChoices(ans));
+      if (type === "table") {
+        const legs = rand(2, 6), chairs = rand(2, 9), ans = legs * chairs;
+        return choiceQuestion("まとまり", `${legs}本足のいすが${chairs}こ。足は全部で？`, String(ans), numberChoices(ans));
+      }
+      if (type === "threeAdd") {
+        const x = rand(1, 50), y = rand(1, 50), z = rand(1, 50), ans = x + y + z;
+        return choiceQuestion("3つの数", `${x} + ${y} + ${z} = ?`, String(ans), numberChoices(ans));
+      }
+      if (type === "threeSub") {
+        const x = rand(60, 150), y = rand(1, 40), z = rand(1, 40), ans = x - y - z;
+        return choiceQuestion("3つの数", `${x} - ${y} - ${z} = ?`, String(ans), numberChoices(ans));
+      }
+      if (type === "nearestTen") {
+        const x = rand(11, 149), ans = Math.round(x / 10) * 10;
+        return choiceQuestion("およその数", `${x}に一番近い10のまとまりは？`, String(ans), numberChoices(ans));
+      }
+      if (type === "placeValue") {
+        const hundreds = rand(1, 9), tens = rand(0, 9), ones = rand(0, 9), num = hundreds * 100 + tens * 10 + ones;
+        return choiceQuestion("位", `${num}の十の位はいくつ？`, String(tens), shuffle([String(tens), String(hundreds), String(ones), String((tens + 1) % 10)]));
+      }
+      if (type === "calendar") {
+        const weeks = rand(2, 8), ans = weeks * 7;
+        return choiceQuestion("カレンダー", `${weeks}週間は何日？`, `${ans}日`, shuffle([`${ans}日`, `${ans + 1}日`, `${weeks + 7}日`, `${weeks * 5}日`]));
+      }
+      if (type === "fraction") {
+        const whole = pick([6, 8, 10, 12, 14, 16, 18, 20]), ans = whole / 2;
+        return choiceQuestion("分数", `${whole}この半分は？`, `${ans}こ`, shuffle([`${ans}こ`, `${whole}こ`, `${ans + 1}こ`, `${Math.max(1, ans - 1)}こ`]));
+      }
+      const group = rand(2, 9), count = rand(2, 9), total = group * count;
+      return choiceQuestion("わり算の考え", `${total}こを${group}こずつ分けると何組？`, `${count}組`, shuffle([`${count}組`, `${group}組`, `${count + 1}組`, `${Math.max(1, count - 1)}組`]));
     }
 
     function makeKanji() {
@@ -1576,6 +1633,10 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    function estimateQuestionSpace() {
+      return 42000 + kanjiBank.length * 2 + wordBank.length;
+    }
+
     function showQuestion() {
       current = makeQuestion();
       els.qLabel.textContent = current.label;
@@ -1602,8 +1663,7 @@
       capture = 0;
       answered = 0;
       correct = 0;
-      currentManaMon = pick(manaMons);
-      els.feedback.textContent = `${currentManaMon.name}があらわれた！ 正解するとこちらの攻撃。`;
+      els.feedback.textContent = "スタート！ どんどん問題を解いてポイントへの道を進もう。";
       showQuestion();
       render();
       timer = setInterval(() => {
@@ -1626,48 +1686,39 @@
         if (combo >= 10) state.stats.combo10 = 1;
         let gain = 10 + Math.min(10, combo);
         score += gain;
-        const damage = 12 + Math.floor(combo / 2);
-        capture += damage;
+        capture = correct;
         state.coins += 2;
         addXp(3);
         if (combo % 5 === 0) {
           timeLeft = Math.min(60, timeLeft + 2);
-          burst(els.heroAvatar);
           sparkle(18);
         } else {
           sparkle(8);
         }
-        burst(els.enemyMonster);
-        els.feedback.textContent = pick(["せいかい！", "いいね！", "コンボだ！", "はやい！"]) + ` ${damage}ダメージ！ +${gain}`;
+        els.feedback.textContent = pick(["せいかい！", "いいね！", "コンボだ！", "はやい！"]) + ` +${gain}`;
         if (button) button.classList.add("correct");
-        if (capture >= 100) defeatManaMon();
+        if (correct > 0 && correct % 12 === 0) milestoneBonus();
       } else {
         combo = 0;
-        capture = Math.max(0, capture - 4);
+        capture = correct;
         timeLeft = Math.max(1, timeLeft - 3);
-        els.feedback.textContent = `マナモンの反撃！ 正解は「${current.answer}」`;
+        els.feedback.textContent = `おしい！ 正解は「${current.answer}」`;
         if (button) button.classList.add("wrong");
-        hit(els.heroAvatar);
+        hit(els.buddyIcon);
       }
       saveState();
       render();
       setTimeout(showQuestion, ok ? 360 : 650);
     }
 
-    function defeatManaMon() {
-      const reward = currentManaMon.reward + Math.floor(combo / 4);
+    function milestoneBonus() {
+      const reward = 6 + Math.floor(combo / 4);
       const ticketBonus = Math.random() < .08 ? 1 : 0;
       state.coins += reward;
       state.tickets += ticketBonus;
       addXp(6);
-      toast(`${currentManaMon.name}をしずめた！ キャンディ+${reward}${ticketBonus ? " ガチャ券+1" : ""}`);
-      capture = 0;
-      currentManaMon = pick(manaMons);
+      toast(`12問突破！ キャンディ+${reward}${ticketBonus ? " ガチャ券+1" : ""}`);
       sparkle(30);
-      setTimeout(() => {
-        els.feedback.textContent = `${currentManaMon.name}がつぎにあらわれた！`;
-        render();
-      }, 360);
     }
 
     function skipQuestion() {
@@ -1841,8 +1892,6 @@
       render();
     });
 
-    setAvatarNode(els.heroAvatar);
-    setMonsterNode(els.enemyMonster, currentManaMon);
     render();
     animate();
   </script>
