@@ -1005,13 +1005,14 @@
         <div class="logo" aria-hidden="true"></div>
         <div>
           <h1>まなモン・スプリント</h1>
-          <p class="tagline">勉強でマナモンとバトル。ガチャ装備で自分のアバターを強くしよう</p>
+          <p class="tagline">勉強でマナモンとバトル。ためたポイントをリアルごほうびに交換しよう</p>
         </div>
       </div>
       <div class="top-stats" aria-label="プレイヤーの記録">
         <div class="pill">★ <span id="levelText">Lv.1</span></div>
         <div class="pill">🍬 <span id="coinText">0</span></div>
         <div class="pill">🎟 <span id="ticketText">0</span></div>
+        <div class="pill">💎 <span id="pointText">0pt</span></div>
         <div class="pill">🏆 <span id="bestText">0</span></div>
       </div>
     </header>
@@ -1068,19 +1069,19 @@
         <div class="toolbar" aria-label="ゲーム操作">
           <button id="startBtn" class="tool">▶<small>スタート</small></button>
           <button id="gachaBtn" class="tool">🎰<small>ガチャ</small></button>
-          <button id="dexBtn" class="tool">🧢<small>クローゼット</small></button>
+          <button id="dexBtn" class="tool">🎁<small>交換所</small></button>
           <button id="resetBtn" class="tool">↺<small>記録リセット</small></button>
         </div>
       </section>
 
       <aside>
         <div class="panel">
-          <h2>今のコーデ</h2>
+          <h2>ごほうびポイント</h2>
           <div class="buddy-card">
             <div id="buddyIcon" class="mini-avatar"></div>
             <div>
-              <div id="buddyName" class="buddy-name">見習いセット</div>
-              <div id="buddySkill" class="tiny">効果: 正解時にキャンディ+1</div>
+              <div id="buddyName" class="buddy-name">0pt</div>
+              <div id="buddySkill" class="tiny">100ptで100円、500ptで好きな本、2000ptでお寿司</div>
               <progress id="xpBar" max="100" value="0"></progress>
               <div id="xpText" class="tiny">EXP 0 / 100</div>
             </div>
@@ -1093,7 +1094,7 @@
         </div>
 
         <div class="panel">
-          <h2>装備ちょい見せ</h2>
+          <h2>ごほうび交換所</h2>
           <div id="dexPreview" class="dex"></div>
         </div>
 
@@ -1105,7 +1106,7 @@
           </details>
           <details>
             <summary>ガチャのルール</summary>
-            <p class="tiny">ガチャ券1枚で1回。帽子・服・アクセ・オーラが出る。同じ装備ならEXPが多めにもらえる。</p>
+            <p class="tiny">ガチャ券はかなりレア。ガチャでごほうびポイントが出て、ポイントはおうちの約束で交換する。</p>
           </details>
         </div>
       </aside>
@@ -1114,9 +1115,9 @@
 
   <dialog id="gachaDialog">
     <div class="modal-body">
-      <h2 id="gachaTitle">装備ガチャ</h2>
+      <h2 id="gachaTitle">ポイントガチャ</h2>
       <div id="gachaStage" class="gacha-stage"><div class="capsule"></div></div>
-      <p id="gachaText" class="tiny">ガチャ券を1枚使って、アバター装備を手に入れる。</p>
+      <p id="gachaText" class="tiny">ガチャ券を1枚使って、ごほうびポイントを手に入れる。</p>
       <div>
         <button id="rollBtn" class="primary">1回まわす</button>
         <button id="closeGachaBtn" class="secondary">とじる</button>
@@ -1126,7 +1127,7 @@
 
   <dialog id="dexDialog">
     <div class="modal-body">
-      <h2>装備クローゼット</h2>
+      <h2>ごほうび交換所</h2>
       <div id="dexFull" class="dex"></div>
       <button id="closeDexBtn" class="secondary">とじる</button>
     </div>
@@ -1135,66 +1136,21 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
-    const palettes = [
-      { id: "sun", name: "サニー", color: "#ffcf4b" },
-      { id: "aqua", name: "アクア", color: "#3e9bdc" },
-      { id: "berry", name: "ベリー", color: "#ef5b75" }
+    const pointPrizes = [
+      { label: "5pt", points: 5, weight: 44, color: "#dff5ff" },
+      { label: "10pt", points: 10, weight: 30, color: "#ccffd9" },
+      { label: "20pt", points: 20, weight: 16, color: "#ffefba" },
+      { label: "50pt", points: 50, weight: 7, color: "#ffd5dd" },
+      { label: "100pt", points: 100, weight: 3, color: "#e3d9ff" }
     ];
 
-    const slotDefs = {
-      head: {
-        label: "頭",
-        cssVar: "head",
-        effects: ["正解時にキャンディ+1", "5コンボで時間+4秒", "漢字問題でスコア+3", "ガチャ券が少し増える", "攻撃ダメージ+2"],
-        shapes: ["キャップ", "ヘルム", "はちまき", "クラウン", "ゴーグル"]
-      },
-      body: {
-        label: "胴",
-        cssVar: "body",
-        effects: ["正解スコア+1", "計算問題でスコア+3", "5コンボでEXP+5", "全ボーナスが少し強い", "入力問題でスコア+4"],
-        shapes: ["ジャケット", "アーマー", "ローブ", "ベスト", "マント"]
-      },
-      arms: {
-        label: "腕",
-        cssVar: "arms",
-        effects: ["攻撃ダメージ+1", "不正解の反撃を少し軽くする", "コンボダメージ+1", "ことば問題でスコア+3", "キャンディ入手+1"],
-        shapes: ["グローブ", "ブレイサー", "スリーブ", "ガントレット", "リングアーム"]
-      },
-      lower: {
-        label: "下半身",
-        cssVar: "lower",
-        effects: ["マナモン撃破EXP+2", "パスしてもコンボが切れにくい", "時間ボーナス+1秒", "スコア+2", "レア装備が少し出やすい"]
-        ,shapes: ["パンツ", "スカート", "レギンス", "キュロット", "プレート"]
-      },
-      feet: {
-        label: "足",
-        cssVar: "feet",
-        effects: ["不正解時の時間減少-1秒", "5コンボでキャンディ+2", "攻撃ダメージ+1", "正解時EXP+1", "タイム開始+3秒"],
-        shapes: ["スニーカー", "ブーツ", "ウィング", "ローラー", "サンダル"]
-      },
-      pet: {
-        label: "ペット",
-        cssVar: "pet",
-        effects: ["撃破時ガチャ券チャンス", "正解時に小ボーナス", "ミス時コンボ保護", "マナモン撃破キャンディ+3", "全体を少し応援"],
-        shapes: ["ピヨ", "ペン", "スライム", "ドラ", "スター"]
-      }
-    };
-
-    const slotOrder = ["head", "body", "arms", "lower", "feet", "pet"];
-    const items = slotOrder.flatMap(slot => slotDefs[slot].shapes.flatMap((shapeName, shapeIndex) =>
-      palettes.map((palette, colorIndex) => ({
-        id: `${slot}_${shapeIndex}_${palette.id}`,
-        slot,
-        shape: shapeIndex,
-        palette: palette.id,
-        name: `${palette.name}${shapeName}`,
-        color: palette.color,
-        rare: shapeIndex >= 4 ? "SSR" : shapeIndex >= 3 ? "SR" : shapeIndex >= 2 ? "R" : "N",
-        effect: slotDefs[slot].effects[shapeIndex],
-        cssVar: slotDefs[slot].cssVar,
-        sort: slotOrder.indexOf(slot) * 100 + shapeIndex * 10 + colorIndex
-      }))
-    ));
+    const rewards = [
+      { id: "yen100", name: "100円", cost: 100, note: "小さなおこづかい" },
+      { id: "book", name: "好きな本1冊", cost: 500, note: "本屋さんで選ぶ" },
+      { id: "movie", name: "映画・動画タイム", cost: 800, note: "家族で決める特別時間" },
+      { id: "toy", name: "好きなおもちゃ相談券", cost: 1200, note: "買う前に家族会議" },
+      { id: "sushi", name: "お寿司", cost: 2000, note: "大きな目標" }
+    ];
 
     const manaMons = [
       { id: "mochi", name: "モチピヨ", color: "#ffcf4b", accent: "#ef5b75", reward: 5 },
@@ -1243,6 +1199,7 @@
       coinText: document.querySelector("#coinText"),
       ticketText: document.querySelector("#ticketText"),
       bestText: document.querySelector("#bestText"),
+      pointText: document.querySelector("#pointText"),
       heroAvatar: document.querySelector("#heroAvatar"),
       styleName: document.querySelector("#styleName"),
       enemyMonster: document.querySelector("#enemyMonster"),
@@ -1286,30 +1243,24 @@
     const ctx = els.canvas.getContext("2d");
 
     function defaultState() {
-      const equip = defaultEquip();
-      const owned = Object.fromEntries(Object.values(equip).map(id => [id, 1]));
       return {
         coins: 0,
-        tickets: 3,
+        tickets: 0,
+        points: 0,
         best: 0,
         xp: 0,
         level: 1,
-        equip,
-        owned,
+        redeemed: {},
         daily: todayKey(),
         stats: { answered: 0, correct: 0, gacha: 0, combo10: 0 }
       };
-    }
-
-    function defaultEquip() {
-      return Object.fromEntries(slotOrder.map(slot => [slot, `${slot}_0_sun`]));
     }
 
     function loadState() {
       try {
         const saved = JSON.parse(localStorage.getItem("manaMonSprint"));
         if (!saved || saved.daily !== todayKey()) {
-          return normalizeState({ ...defaultState(), coins: saved?.coins || 0, tickets: (saved?.tickets || 0) + 1, best: saved?.best || 0, xp: saved?.xp || 0, level: saved?.level || 1, equip: saved?.equip || defaultState().equip, owned: saved?.owned || defaultState().owned });
+          return normalizeState({ ...defaultState(), coins: saved?.coins || 0, tickets: saved?.tickets || 0, points: saved?.points || 0, best: saved?.best || 0, xp: saved?.xp || 0, level: saved?.level || 1, redeemed: saved?.redeemed || {} });
         }
         return normalizeState({ ...defaultState(), ...saved });
       } catch {
@@ -1319,14 +1270,7 @@
 
     function normalizeState(raw) {
       const base = defaultState();
-      const incoming = raw.equip || {};
-      const equip = { ...base.equip };
-      for (const slot of slotOrder) {
-        if (items.some(item => item.id === incoming[slot])) equip[slot] = incoming[slot];
-      }
-      const owned = { ...base.owned, ...(raw.owned || {}) };
-      for (const id of Object.values(equip)) owned[id] = owned[id] || 1;
-      return { ...base, ...raw, equip, owned, stats: { ...base.stats, ...(raw.stats || {}) } };
+      return { ...base, ...raw, points: raw.points || 0, redeemed: { ...base.redeemed, ...(raw.redeemed || {}) }, stats: { ...base.stats, ...(raw.stats || {}) } };
     }
 
     function saveState() {
@@ -1345,22 +1289,6 @@
       return [...arr].sort(() => Math.random() - .5);
     }
 
-    function itemById(id) {
-      return items.find(item => item.id === id) || items[0];
-    }
-
-    function equipped(slot) {
-      return itemById(state.equip[slot]);
-    }
-
-    function hasEquipped(id) {
-      return Object.values(state.equip).includes(id);
-    }
-
-    function equippedShape(slot, shape) {
-      return equipped(slot).shape === shape;
-    }
-
     function setMonsterNode(node, mon) {
       node.style.setProperty("--monster", mon.color);
       node.style.setProperty("--accent", mon.accent);
@@ -1368,31 +1296,38 @@
     }
 
     function setAvatarNode(node, mini = false) {
-      for (const slot of slotOrder) {
-        const item = equipped(slot);
-        node.style.setProperty(`--${slotDefs[slot].cssVar}`, item.color);
-        node.dataset[`${slot}Shape`] = String(item.shape);
-      }
-      const parts = `<div class="avatar-part avatar-pet"></div><div class="avatar-part avatar-feet"></div><div class="avatar-part avatar-lower"></div><div class="avatar-part avatar-arms"></div><div class="avatar-part avatar-body"></div><div class="avatar-part avatar-head"><div class="avatar-mouth"></div></div><div class="avatar-part equip-head"></div>`;
+      node.style.setProperty("--head", "#ffcf4b");
+      node.style.setProperty("--body", "#3e9bdc");
+      node.style.setProperty("--arms", "#3e9bdc");
+      node.style.setProperty("--lower", "#7759d8");
+      node.style.setProperty("--feet", "#ef5b75");
+      node.style.setProperty("--pet", "#ffcf4b");
+      node.dataset.headShape = "0";
+      node.dataset.bodyShape = "0";
+      node.dataset.armsShape = "0";
+      node.dataset.lowerShape = "0";
+      node.dataset.feetShape = "0";
+      node.dataset.petShape = "0";
+      const parts = `<div class="avatar-part avatar-feet"></div><div class="avatar-part avatar-lower"></div><div class="avatar-part avatar-arms"></div><div class="avatar-part avatar-body"></div><div class="avatar-part avatar-head"><div class="avatar-mouth"></div></div>`;
       node.innerHTML = mini ? `<div class="avatar-scale">${parts}</div>` : parts;
     }
 
     function render() {
-      const equippedItems = slotOrder.map(equipped);
       els.levelText.textContent = `Lv.${state.level}`;
       els.coinText.textContent = state.coins;
       els.ticketText.textContent = state.tickets;
+      els.pointText.textContent = `${state.points}pt`;
       els.bestText.textContent = state.best;
       els.scoreText.textContent = score;
       els.comboText.textContent = combo;
       els.timeText.textContent = timeLeft;
-      els.timeBar.max = equippedShape("feet", 4) ? 63 : 60;
+      els.timeBar.max = 60;
       els.timeBar.value = timeLeft;
       const manaHp = Math.max(0, 100 - capture);
       els.captureText.textContent = `${manaHp}%`;
       els.captureBar.value = manaHp;
-      els.buddyName.textContent = `${equipped("head").name} + ${equipped("body").name}`;
-      els.buddySkill.textContent = `効果: ${equippedItems.map(item => item.effect).join(" / ")}`;
+      els.buddyName.textContent = `${state.points}pt`;
+      els.buddySkill.textContent = nextRewardText();
       els.xpBar.value = state.xp % 100;
       els.xpText.textContent = `EXP ${state.xp % 100} / 100`;
       els.styleName.textContent = styleTitle();
@@ -1405,11 +1340,10 @@
     }
 
     function styleTitle() {
-      const rareScore = Object.values(state.equip).reduce((sum, id) => sum + ({ N: 1, R: 2, SR: 3, SSR: 4 }[itemById(id).rare] || 1), 0);
-      if (rareScore >= 12) return "伝説の学びコーデ";
-      if (rareScore >= 9) return "スーパー集中コーデ";
-      if (rareScore >= 7) return "キラめき勉強コーデ";
-      return "見習いスタイル";
+      if (state.points >= 2000) return "お寿司目前チャレンジャー";
+      if (state.points >= 500) return "本ゲット圏内";
+      if (state.points >= 100) return "100円ゲット圏内";
+      return "見習いチャレンジャー";
     }
 
     function renderMissions() {
@@ -1423,35 +1357,42 @@
     }
 
     function renderDexPreview() {
-      els.dexPreview.innerHTML = items.slice(0, 6).map(item => dexTile(item)).join("");
+      els.dexPreview.innerHTML = rewards.slice(0, 3).map(rewardTile).join("");
     }
 
-    function dexTile(item) {
-      const owned = state.owned[item.id];
-      if (!owned) return `<div class="dex-item locked">?</div>`;
-      return `<button class="dex-item" data-equip="${item.id}" title="${slotDefs[item.slot].label}: ${item.name}"><div class="dex-dot" style="--item:${item.color};clip-path:${shapePreview(item)}"></div><small>${slotDefs[item.slot].label}<br>${item.name}</small></button>`;
+    function rewardTile(reward) {
+      const canRedeem = state.points >= reward.cost;
+      return `<button class="dex-item ${canRedeem ? "" : "locked"}" data-reward="${reward.id}" title="${reward.note}"><strong>${reward.cost}pt</strong><small>${reward.name}</small></button>`;
     }
 
-    function shapePreview(item) {
-      const previews = ["circle(50%)", "polygon(12% 0, 88% 0, 100% 100%, 0 100%)", "polygon(50% 0, 100% 50%, 50% 100%, 0 50%)", "polygon(10% 30%, 50% 0, 90% 30%, 100% 100%, 0 100%)", "polygon(50% 0, 100% 32%, 82% 100%, 18% 100%, 0 32%)"];
-      return previews[item.shape] || "circle(50%)";
+    function nextRewardText() {
+      const next = rewards.find(reward => reward.cost > state.points);
+      if (!next) return "すべてのごほうびに届いています";
+      return `${next.name}まであと${next.cost - state.points}pt`;
     }
 
     function renderFullDex() {
-      els.dexFull.innerHTML = [...items].sort((a, b) => a.sort - b.sort).map(item => dexTile(item)).join("");
-      els.dexFull.querySelectorAll("[data-equip]").forEach(btn => {
+      els.dexFull.innerHTML = rewards.map(rewardTile).join("");
+      els.dexFull.querySelectorAll("[data-reward]").forEach(btn => {
         btn.addEventListener("click", () => {
-          equipItem(btn.dataset.equip);
+          redeemReward(btn.dataset.reward);
           saveState();
           render();
-          toast(`${itemById(btn.dataset.equip).name}を装備した！`);
         });
       });
     }
 
-    function equipItem(id) {
-      const item = itemById(id);
-      state.equip[item.slot] = item.id;
+    function redeemReward(id) {
+      const reward = rewards.find(item => item.id === id);
+      if (!reward) return;
+      if (state.points < reward.cost) {
+        toast(`${reward.name}まであと${reward.cost - state.points}pt`);
+        return;
+      }
+      if (!confirm(`${reward.cost}ptを使って「${reward.name}」を交換済みにしますか？`)) return;
+      state.points -= reward.cost;
+      state.redeemed[id] = (state.redeemed[id] || 0) + 1;
+      toast(`${reward.name}を交換済みにしたよ。おうちの人に見せよう！`);
     }
 
     function makeQuestion() {
@@ -1532,7 +1473,7 @@
     function startGame() {
       clearInterval(timer);
       running = true;
-      timeLeft = equippedShape("feet", 4) ? 63 : 60;
+      timeLeft = 60;
       score = 0;
       combo = 0;
       capture = 0;
@@ -1561,21 +1502,13 @@
         combo += 1;
         if (combo >= 10) state.stats.combo10 = 1;
         let gain = 10 + Math.min(10, combo);
-        if (equippedShape("body", 0)) gain += 1;
-        if (equippedShape("lower", 3)) gain += 2;
-        if (equippedShape("head", 2) && current.label.includes("かんじ")) gain += 3;
-        if (equippedShape("body", 1) && current.label.includes("けいさん")) gain += 3;
-        if (equippedShape("body", 4) && current.typed) gain += 4;
-        if (equippedShape("body", 3) || equippedShape("pet", 4)) gain += 2;
         score += gain;
-        const damage = 12 + Math.floor(combo / 2) + (equippedShape("head", 4) ? 2 : 0) + (equippedShape("arms", 0) ? 1 : 0) + (equippedShape("arms", 2) ? Math.floor(combo / 5) : 0) + (equippedShape("feet", 2) ? 1 : 0);
+        const damage = 12 + Math.floor(combo / 2);
         capture += damage;
-        state.coins += 2 + (equippedShape("head", 0) ? 1 : 0) + (equippedShape("arms", 4) ? 1 : 0);
-        addXp(3 + (equippedShape("body", 2) && combo % 5 === 0 ? 5 : 0) + (equippedShape("feet", 3) ? 1 : 0));
+        state.coins += 2;
+        addXp(3);
         if (combo % 5 === 0) {
-          timeLeft = Math.min(60, timeLeft + (equippedShape("head", 1) ? 4 : 2) + (equippedShape("lower", 2) ? 1 : 0));
-          state.tickets += equippedShape("head", 3) && Math.random() < .24 ? 1 : 0;
-          state.coins += equippedShape("feet", 1) ? 2 : 0;
+          timeLeft = Math.min(60, timeLeft + 2);
           burst(els.heroAvatar);
           sparkle(18);
         } else {
@@ -1586,10 +1519,9 @@
         if (button) button.classList.add("correct");
         if (capture >= 100) defeatManaMon();
       } else {
-        combo = Math.max(0, (equippedShape("lower", 1) || equippedShape("pet", 2)) ? combo - 1 : 0);
+        combo = 0;
         capture = Math.max(0, capture - 4);
-        const timePenalty = equippedShape("feet", 0) || equippedShape("arms", 1) ? 2 : 3;
-        timeLeft = Math.max(1, timeLeft - timePenalty);
+        timeLeft = Math.max(1, timeLeft - 3);
         els.feedback.textContent = `マナモンの反撃！ 正解は「${current.answer}」`;
         if (button) button.classList.add("wrong");
         hit(els.heroAvatar);
@@ -1600,11 +1532,11 @@
     }
 
     function defeatManaMon() {
-      const reward = currentManaMon.reward + Math.floor(combo / 4) + (equippedShape("pet", 3) ? 3 : 0);
-      const ticketBonus = Math.random() < (equippedShape("lower", 4) ? .34 : .28) || equippedShape("head", 3) || equippedShape("pet", 0) ? 1 : 0;
+      const reward = currentManaMon.reward + Math.floor(combo / 4);
+      const ticketBonus = Math.random() < .08 ? 1 : 0;
       state.coins += reward;
       state.tickets += ticketBonus;
-      addXp(6 + (equippedShape("lower", 0) ? 2 : 0));
+      addXp(6);
       toast(`${currentManaMon.name}をしずめた！ キャンディ+${reward}${ticketBonus ? " ガチャ券+1" : ""}`);
       capture = 0;
       currentManaMon = pick(manaMons);
@@ -1626,18 +1558,11 @@
     function finishGame() {
       clearInterval(timer);
       running = false;
-      const ticketGain = Math.floor(score / 90) + (capture >= 100 ? 1 : 0);
+      const ticketGain = Math.floor(score / 280);
       state.tickets += ticketGain;
       state.best = Math.max(state.best, score);
       addXp(Math.floor(score / 12));
-      if (capture >= 100) {
-        const item = pick(items);
-        state.owned[item.id] = (state.owned[item.id] || 0) + 1;
-        equipItem(item.id);
-        toast(`${item.name}をゲット！ 自動で装備した！`);
-      } else {
-        toast(`終了！ ${correct}/${answered}問正解、ガチャ券+${ticketGain}`);
-      }
+      toast(`終了！ ${correct}/${answered}問正解、ガチャ券+${ticketGain}`);
       els.qLabel.textContent = "結果";
       els.question.textContent = `${score}点！`;
       els.choices.innerHTML = "";
@@ -1651,8 +1576,12 @@
       while (state.xp >= 100) {
         state.xp -= 100;
         state.level += 1;
-        state.tickets += 1;
-        toast(`レベルアップ！ Lv.${state.level} ガチャ券+1`);
+        if (state.level % 5 === 0) {
+          state.tickets += 1;
+          toast(`レベルアップ！ Lv.${state.level} ガチャ券+1`);
+        } else {
+          toast(`レベルアップ！ Lv.${state.level}`);
+        }
       }
     }
 
@@ -1663,17 +1592,24 @@
       }
       state.tickets -= 1;
       state.stats.gacha += 1;
-      const rarityRoll = Math.random();
-      const pool = rarityRoll > .96 ? items.filter(m => m.rare === "SSR") : rarityRoll > .82 ? items.filter(m => m.rare === "SR") : rarityRoll > .52 ? items.filter(m => m.rare === "R") : items.filter(m => m.rare === "N");
-      const item = pick(pool.length ? pool : items);
-      state.owned[item.id] = (state.owned[item.id] || 0) + 1;
-      equipItem(item.id);
-      addXp(state.owned[item.id] > 1 ? 18 : 8);
+      const prize = rollPointPrize();
+      state.points += prize.points;
+      addXp(8);
       saveState();
-      els.gachaStage.innerHTML = `<div class="dex-item result-item"><div class="dex-dot" style="--item:${item.color}"></div></div>`;
-      els.gachaText.textContent = `${item.rare} ${item.name}！ ${slotDefs[item.slot].label}に装備したよ。`;
+      els.gachaStage.innerHTML = `<div class="dex-item result-item" style="background:${prize.color}"><strong>${prize.label}</strong><small>ごほうびポイント</small></div>`;
+      els.gachaText.textContent = `${prize.label}をゲット！ 合計 ${state.points}pt`;
       sparkle(28);
       render();
+    }
+
+    function rollPointPrize() {
+      const total = pointPrizes.reduce((sum, prize) => sum + prize.weight, 0);
+      let cursor = Math.random() * total;
+      for (const prize of pointPrizes) {
+        cursor -= prize.weight;
+        if (cursor <= 0) return prize;
+      }
+      return pointPrizes[0];
     }
 
     function resetGame() {
@@ -1685,7 +1621,7 @@
       capture = 0;
       timeLeft = 60;
       render();
-      toast("記録をリセットしたよ。見習い装備とガチャ券3枚から再スタート！");
+      toast("記録をリセットしたよ。ポイント0、ガチャ券0から再スタート！");
     }
 
     function toast(message) {
@@ -1771,12 +1707,11 @@
     els.closeDexBtn.addEventListener("click", () => els.dexDialog.close());
     els.resetBtn.addEventListener("click", resetGame);
     els.dexPreview.addEventListener("click", event => {
-      const btn = event.target.closest("[data-equip]");
+      const btn = event.target.closest("[data-reward]");
       if (!btn) return;
-      equipItem(btn.dataset.equip);
+      redeemReward(btn.dataset.reward);
       saveState();
       render();
-      toast(`${itemById(btn.dataset.equip).name}を装備した！`);
     });
 
     setAvatarNode(els.heroAvatar);
