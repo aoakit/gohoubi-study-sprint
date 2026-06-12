@@ -574,8 +574,27 @@
       background: #fff;
       display: grid;
       place-items: center;
+      gap: 2px;
+      padding: 8px;
       position: relative;
       overflow: hidden;
+    }
+
+    .dex-item strong,
+    .dex-item small,
+    .dex-item em {
+      position: relative;
+      z-index: 1;
+    }
+
+    .dex-item em {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #dcffe6;
+      color: #17653b;
+      font-size: .72rem;
+      font-style: normal;
+      font-weight: 1000;
     }
 
     .dex-item.locked {
@@ -625,6 +644,56 @@
       display: grid;
       gap: 14px;
       text-align: center;
+    }
+
+    .parent-check {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 8px;
+      border: 3px solid #172033;
+      background: #fff;
+      text-align: left;
+    }
+
+    .parent-check strong {
+      font-size: 1.4rem;
+      line-height: 1.15;
+    }
+
+    .parent-check dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 7px 12px;
+      margin: 0;
+      font-weight: 900;
+    }
+
+    .parent-check dt {
+      color: var(--muted);
+    }
+
+    .hold-button {
+      width: 100%;
+      min-height: 68px;
+      background: var(--leaf);
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hold-button::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: var(--hold, 0%);
+      background: rgba(255, 255, 255, .28);
+      transition: width .08s linear;
+    }
+
+    .hold-button span {
+      position: relative;
+      z-index: 1;
     }
 
     .gacha-stage {
@@ -1219,6 +1288,24 @@
     </div>
   </dialog>
 
+  <dialog id="parentDialog">
+    <div class="modal-body">
+      <h2>おうちの人チェック</h2>
+      <div class="parent-check">
+        <span class="tiny">ポイントをごほうびに交換します。内容を確認してください。</span>
+        <strong id="parentRewardName">ごほうび</strong>
+        <dl>
+          <dt>使うポイント</dt><dd id="parentRewardCost">0pt</dd>
+          <dt>交換前のポイント</dt><dd id="parentCurrentPoints">0pt</dd>
+          <dt>交換後のポイント</dt><dd id="parentAfterPoints">0pt</dd>
+        </dl>
+      </div>
+      <button id="parentApproveBtn" class="primary hold-button"><span>おうちの人が2秒長押しで交換</span></button>
+      <button id="parentCancelBtn" class="secondary">やめる</button>
+      <p class="tiny">長押しが完了するとポイントが減り、交換済みとして記録されます。</p>
+    </div>
+  </dialog>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -1311,6 +1398,9 @@
     let particles = [];
     let debugTapCount = 0;
     let debugTapTimer = null;
+    let pendingReward = null;
+    let holdStart = 0;
+    let holdFrame = null;
     let recentQuestions = [];
     const mathTypes = ["add", "sub", "mul", "clock", "money", "missingAdd", "missingSub", "compare", "sequence", "double", "half", "length", "table", "threeAdd", "threeSub", "nearestTen", "placeValue", "calendar", "fraction", "division"];
     const PASS_CORRECT = 10;
@@ -1362,6 +1452,13 @@
       closeGachaBtn: document.querySelector("#closeGachaBtn"),
       dexDialog: document.querySelector("#dexDialog"),
       dexFull: document.querySelector("#dexFull"),
+      parentDialog: document.querySelector("#parentDialog"),
+      parentRewardName: document.querySelector("#parentRewardName"),
+      parentRewardCost: document.querySelector("#parentRewardCost"),
+      parentCurrentPoints: document.querySelector("#parentCurrentPoints"),
+      parentAfterPoints: document.querySelector("#parentAfterPoints"),
+      parentApproveBtn: document.querySelector("#parentApproveBtn"),
+      parentCancelBtn: document.querySelector("#parentCancelBtn"),
       rewardNameInput: document.querySelector("#rewardNameInput"),
       rewardCostInput: document.querySelector("#rewardCostInput"),
       addRewardBtn: document.querySelector("#addRewardBtn"),
@@ -1475,7 +1572,8 @@
 
     function rewardTile(reward) {
       const canRedeem = state.points >= reward.cost;
-      return `<button class="dex-item ${canRedeem ? "" : "locked"}" data-reward="${reward.id}" title="${reward.note}"><strong>${reward.cost}pt</strong><small>${reward.name}</small></button>`;
+      const redeemed = state.redeemed[reward.id] || 0;
+      return `<button class="dex-item ${canRedeem ? "" : "locked"}" data-reward="${reward.id}" title="${reward.note}"><strong>${reward.cost}pt</strong><small>${reward.name}</small>${redeemed ? `<em>交換済み ${redeemed}</em>` : ""}</button>`;
     }
 
     function nextRewardText() {
@@ -1502,10 +1600,59 @@
         toast(`${reward.name}まであと${reward.cost - state.points}pt`);
         return;
       }
-      if (!confirm(`${reward.cost}ptを使って「${reward.name}」を交換済みにしますか？`)) return;
+      openParentApproval(reward);
+    }
+
+    function openParentApproval(reward) {
+      pendingReward = reward;
+      resetHold();
+      els.parentRewardName.textContent = reward.name;
+      els.parentRewardCost.textContent = `${reward.cost}pt`;
+      els.parentCurrentPoints.textContent = `${state.points}pt`;
+      els.parentAfterPoints.textContent = `${state.points - reward.cost}pt`;
+      els.parentDialog.showModal();
+    }
+
+    function confirmParentApproval() {
+      if (!pendingReward) return;
+      const reward = pendingReward;
+      if (state.points < reward.cost) {
+        toast(`${reward.name}まであと${reward.cost - state.points}pt`);
+        els.parentDialog.close();
+        pendingReward = null;
+        return;
+      }
       state.points -= reward.cost;
-      state.redeemed[id] = (state.redeemed[id] || 0) + 1;
-      toast(`${reward.name}を交換済みにしたよ。おうちの人に見せよう！`);
+      state.redeemed[reward.id] = (state.redeemed[reward.id] || 0) + 1;
+      saveState();
+      renderFullDex();
+      render();
+      toast(`${reward.name}を交換済みにしました`);
+      els.parentDialog.close();
+      pendingReward = null;
+    }
+
+    function resetHold() {
+      cancelAnimationFrame(holdFrame);
+      holdFrame = null;
+      holdStart = 0;
+      els.parentApproveBtn.style.setProperty("--hold", "0%");
+    }
+
+    function startHold() {
+      if (!pendingReward) return;
+      holdStart = performance.now();
+      const tick = now => {
+        const progress = Math.min(1, (now - holdStart) / 2000);
+        els.parentApproveBtn.style.setProperty("--hold", `${Math.round(progress * 100)}%`);
+        if (progress >= 1) {
+          resetHold();
+          confirmParentApproval();
+          return;
+        }
+        holdFrame = requestAnimationFrame(tick);
+      };
+      holdFrame = requestAnimationFrame(tick);
     }
 
     function getRewards() {
@@ -1951,6 +2098,16 @@
       els.dexDialog.showModal();
     });
     els.closeDexBtn.addEventListener("click", () => els.dexDialog.close());
+    els.parentCancelBtn.addEventListener("click", () => {
+      resetHold();
+      pendingReward = null;
+      els.parentDialog.close();
+    });
+    els.parentDialog.addEventListener("close", resetHold);
+    els.parentApproveBtn.addEventListener("pointerdown", startHold);
+    els.parentApproveBtn.addEventListener("pointerup", resetHold);
+    els.parentApproveBtn.addEventListener("pointerleave", resetHold);
+    els.parentApproveBtn.addEventListener("pointercancel", resetHold);
     els.resetBtn.addEventListener("click", resetGame);
     els.debugTapTarget.addEventListener("click", handleDebugTap);
     document.addEventListener("keydown", event => {
