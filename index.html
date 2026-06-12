@@ -1065,7 +1065,7 @@
   <div class="shell">
     <header>
       <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
+        <div id="debugTapTarget" class="logo" aria-hidden="true"></div>
         <div>
           <h1>ごほうび学習スプリント</h1>
           <p class="tagline">問題を解いてガチャ券をため、ポイントをリアルごほうびに交換しよう</p>
@@ -1309,6 +1309,8 @@
     let answered = 0;
     let correct = 0;
     let particles = [];
+    let debugTapCount = 0;
+    let debugTapTimer = null;
     let recentQuestions = [];
     const mathTypes = ["add", "sub", "mul", "clock", "money", "missingAdd", "missingSub", "compare", "sequence", "double", "half", "length", "table", "threeAdd", "threeSub", "nearestTen", "placeValue", "calendar", "fraction", "division"];
     const PASS_CORRECT = 10;
@@ -1346,6 +1348,7 @@
       gachaBtn: document.querySelector("#gachaBtn"),
       dexBtn: document.querySelector("#dexBtn"),
       resetBtn: document.querySelector("#resetBtn"),
+      debugTapTarget: document.querySelector("#debugTapTarget"),
       buddyName: document.querySelector("#buddyName"),
       buddySkill: document.querySelector("#buddySkill"),
       xpBar: document.querySelector("#xpBar"),
@@ -1842,6 +1845,26 @@
       toast("記録をリセットしたよ。ポイント0、ガチャ券0から再スタート！");
     }
 
+    function grantDebugTickets(amount = 5) {
+      state.tickets += amount;
+      saveState();
+      render();
+      toast(`デバッグ: ガチャ券+${amount}`);
+    }
+
+    function handleDebugTap() {
+      debugTapCount += 1;
+      clearTimeout(debugTapTimer);
+      debugTapTimer = setTimeout(() => {
+        debugTapCount = 0;
+      }, 1800);
+      if (debugTapCount >= 7) {
+        debugTapCount = 0;
+        clearTimeout(debugTapTimer);
+        grantDebugTickets(5);
+      }
+    }
+
     function toast(message) {
       els.toast.textContent = message;
       els.toast.classList.add("show");
@@ -1929,6 +1952,13 @@
     });
     els.closeDexBtn.addEventListener("click", () => els.dexDialog.close());
     els.resetBtn.addEventListener("click", resetGame);
+    els.debugTapTarget.addEventListener("click", handleDebugTap);
+    document.addEventListener("keydown", event => {
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "g") {
+        event.preventDefault();
+        grantDebugTickets(5);
+      }
+    });
     els.dexPreview.addEventListener("click", event => {
       const btn = event.target.closest("[data-reward]");
       if (!btn) return;
